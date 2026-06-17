@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wenlong Song — Data Science Leader · GTM · Analytics · AI</title>
+<meta name="description" content="Wenlong Song — Head of Mid-Market Data Science at Intuit. I turn go-to-market into a data- and AI-driven growth engine: from the data foundation up to the agent in the seller's workflow." />
+<meta name="author" content="Wenlong Song" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Wenlong Song — Data Science Leader · GTM · Analytics · AI" />
+<meta property="og:description" content="Mid-Market GTM data science that became a company's #1 growth engine — built from the data foundation up to the agent in the seller's workflow." />
+
+<!-- Favicon: WS monogram -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B2942'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='20' font-weight='700' fill='%2329B5E8' text-anchor='middle'%3E%E2%88%9E%3C/text%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================================================ TOKENS == */
+:root{
+  --midnight:#0B2942;
+  --midnight-2:#0E3350;
+  --midnight-3:#123E60;
+  --cyan:#29B5E8;
+  --cyan-soft:#7FD3F2;
+  --steel:#11567F;
+  --ink:#16222C;
+  --slate:#5A6B7B;
+  --mist:#C2D6E3;
+  --mist-dim:#8AA6BC;
+  --paper:#F4F7FA;
+  --paper-2:#EAF0F6;
+  --white:#FFFFFF;
+
+  --line-dark:rgba(194,214,227,.16);
+  --line-light:rgba(11,41,66,.12);
+
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Code",Consolas,monospace;
+
+  --wrap:1180px;
+  --gutter:clamp(1.25rem,5vw,4.5rem);
+  --pad-y:clamp(4.5rem,9vw,8rem);
+  --radius:14px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+
+/* ============================================================ RESET ===== */
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
+body{
+  margin:0;background:var(--midnight);color:var(--ink);
+  font-family:var(--sans);font-size:1.0625rem;line-height:1.65;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+img,svg{display:block;max-width:100%;}
+a{color:inherit;text-decoration:none;}
+::selection{background:var(--cyan);color:var(--midnight);}
+
+:focus-visible{outline:2.5px solid var(--cyan);outline-offset:3px;border-radius:3px;}
+
+/* ============================================================ LAYOUT ==== */
+.spread{position:relative;padding:var(--pad-y) var(--gutter);overflow:hidden;}
+.spread--dark{background:var(--midnight);color:var(--mist);}
+.spread--light{background:var(--paper);color:var(--ink);}
+.wrap{max-width:var(--wrap);margin-inline:auto;position:relative;z-index:2;}
+
+/* eyebrow / kicker — styled like a query field label (the signature motif) */
+.eyebrow{
+  font-family:var(--mono);font-size:.74rem;font-weight:500;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--cyan);display:inline-flex;align-items:center;gap:.6rem;
+  margin:0 0 1.4rem;
+}
+.eyebrow::before{content:"";width:1.6rem;height:1px;background:var(--cyan);opacity:.7;}
+.spread--light .eyebrow{color:var(--steel);}
+.spread--light .eyebrow::before{background:var(--steel);}
+
+.s-title{
+  font-family:var(--serif);font-weight:600;
+  font-size:clamp(2.1rem,4.6vw,3.4rem);line-height:1.02;letter-spacing:-.018em;
+  margin:0;color:var(--midnight);
+}
+.spread--dark .s-title{color:var(--white);}
+
+/* ============================================================ NAV ======= */
+.nav{
+  position:fixed;inset:0 0 auto 0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.05rem var(--gutter);
+  transition:padding .35s var(--ease),background .35s var(--ease),
+             border-color .35s var(--ease),backdrop-filter .35s var(--ease);
+  border-bottom:1px solid transparent;
+}
+.nav.is-scrolled{
+  padding:.6rem var(--gutter);
+  background:rgba(8,30,49,.82);backdrop-filter:blur(14px) saturate(140%);
+  border-bottom:1px solid var(--line-dark);
+}
+.nav__mark{
+  font-family:var(--serif);font-weight:700;font-size:1.18rem;letter-spacing:.02em;
+  color:var(--white);display:inline-flex;align-items:center;gap:.55rem;
+}
+.nav__mark b{color:var(--cyan);font-size:1.5em;line-height:1;position:relative;top:.04em;}
+.nav__dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 12px 1px rgba(41,181,232,.7);}
+.nav__links{display:flex;gap:1.55rem;list-style:none;margin:0;padding:0;}
+.nav__links a{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mist);position:relative;padding:.3rem 0;transition:color .25s;
+}
+.nav__links a::after{
+  content:"";position:absolute;left:0;bottom:-2px;width:0;height:1.5px;background:var(--cyan);
+  transition:width .3s var(--ease);
+}
+.nav__links a:hover{color:var(--white);}
+.nav__links a:hover::after{width:100%;}
+
+/* ============================================================ HERO ====== */
+.hero{
+  min-height:100svh;display:flex;align-items:center;
+  padding-top:7rem;padding-bottom:4rem;
+  background:
+    radial-gradient(120% 90% at 85% 0%,rgba(41,181,232,.12),transparent 55%),
+    radial-gradient(90% 70% at 0% 100%,rgba(17,86,127,.28),transparent 60%),
+    var(--midnight);
+}
+.hero__grid{
+  display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(2rem,5vw,4.5rem);
+  align-items:center;width:100%;
+}
+.hero__eyebrow{
+  font-family:var(--mono);font-size:.78rem;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--cyan);margin:0 0 1.5rem;
+}
+.masthead{
+  font-family:var(--serif);font-weight:600;color:var(--white);
+  font-size:clamp(2.4rem,6.4vw,5rem);line-height:.96;letter-spacing:-.025em;margin:0;
+  white-space:nowrap;
+}
+.masthead .ln{display:block;overflow:hidden;padding-bottom:.22em;margin-bottom:-.22em;}
+.masthead .ln span{display:block;}
+.masthead em{font-style:italic;font-weight:400;color:var(--cyan-soft);}
+.hero__dek{
+  margin:1.9rem 0 0;max-width:30ch;color:var(--mist);
+  font-size:clamp(1.05rem,1.6vw,1.28rem);line-height:1.55;
+}
+.hero__dek b{color:var(--white);font-weight:600;}
+.hero__cue{
+  margin-top:2.6rem;display:inline-flex;align-items:center;gap:.7rem;
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--mist-dim);
+}
+.hero__cue .arr{
+  width:30px;height:30px;border:1px solid var(--line-dark);border-radius:50%;
+  display:grid;place-items:center;color:var(--cyan);animation:bob 2.2s var(--ease) infinite;
+}
+@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(4px);}}
+
+/* crystalline lattice (ambient, very subtle) */
+.lattice{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5;}
+.lattice svg{position:absolute;width:min(680px,60vw);height:auto;}
+.lattice .l-tr{top:-6%;right:-8%;opacity:.55;}
+.lattice .l-bl{bottom:-12%;left:-10%;opacity:.3;transform:rotate(18deg);}
+
+/* -- the SIGNATURE: semantic-layer query card -- */
+.qcard{
+  background:linear-gradient(180deg,var(--midnight-2),#0a2841);
+  border:1px solid var(--line-dark);border-radius:var(--radius);
+  box-shadow:0 30px 70px -30px rgba(0,0,0,.7),0 0 0 1px rgba(41,181,232,.05) inset;
+  overflow:hidden;font-family:var(--mono);
+  transform:translateY(20px);opacity:0;
+}
+.qcard.is-in{transform:none;opacity:1;transition:transform .8s var(--ease),opacity .8s var(--ease);}
+.qcard__bar{
+  display:flex;align-items:center;gap:.5rem;padding:.7rem 1rem;
+  border-bottom:1px solid var(--line-dark);background:rgba(255,255,255,.02);
+}
+.qcard__bar i{width:9px;height:9px;border-radius:50%;background:var(--midnight-3);display:block;}
+.qcard__bar i:nth-child(1){background:#2c4a66;}
+.qcard__tag{
+  margin-left:auto;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mist-dim);display:flex;align-items:center;gap:.45rem;
+}
+.qcard__tag b{color:var(--cyan);font-weight:500;}
+.qcard__live{width:7px;height:7px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 9px 1px rgba(41,181,232,.8);animation:pulse 1.8s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+.qcard__body{transition:opacity .4s var(--ease);}
+.qcard__body.is-fading{opacity:0;}
+
+.qcard__prompt{
+  padding:1.1rem 1.1rem .35rem;font-size:.84rem;color:var(--mist);
+  display:flex;gap:.55rem;align-items:baseline;min-height:3.4rem;line-height:1.5;
+}
+.qcard__prompt .pp{color:var(--cyan);font-weight:700;}
+#qtype{color:var(--white);}
+.caret{display:inline-block;width:.55ch;background:var(--cyan);color:transparent;
+  animation:blink 1s steps(1) infinite;margin-left:1px;}
+@keyframes blink{50%{opacity:0;}}
+
+.qcard__call{
+  padding:.1rem 1.1rem .55rem;font-size:.72rem;color:var(--cyan);
+  display:flex;align-items:center;gap:.5rem;min-height:1.1rem;opacity:0;transition:opacity .3s;
+}
+.qcard__call.on{opacity:1;}
+.qcard__call::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 8px 1px rgba(41,181,232,.7);animation:pulse 1.4s infinite;flex:none;}
+
+.qcard__scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.qcard__result{width:100%;border-collapse:collapse;font-size:.7rem;table-layout:fixed;}
+.qcard__result thead th{
+  text-align:left;font-weight:500;color:var(--mist-dim);font-size:.56rem;letter-spacing:.08em;
+  text-transform:uppercase;padding:.5rem .5rem;border-top:1px solid var(--line-dark);vertical-align:bottom;
+}
+.qcard__result th:nth-child(1){width:24%;} .qcard__result th:nth-child(2){width:16%;}
+.qcard__result th:nth-child(3){width:15%;} .qcard__result th:nth-child(4){width:23%;}
+.qcard__result th:nth-child(5){width:22%;}
+.qcard__result td{padding:.5rem .5rem;border-top:1px solid rgba(194,214,227,.07);vertical-align:top;overflow-wrap:anywhere;}
+.qcard__result th:first-child,.qcard__result td:first-child{padding-left:1.1rem;}
+.qcard__result th:last-child,.qcard__result td:last-child{padding-right:1.1rem;}
+.qcard__result tbody tr{opacity:0;transform:translateY(6px);}
+.qcard__result tbody tr.on{opacity:1;transform:none;transition:opacity .45s var(--ease),transform .45s var(--ease);}
+.c-id{color:var(--white);font-weight:500;}
+.c-num{color:var(--cyan-soft);white-space:nowrap;}
+.c-prod{color:var(--mist);}
+.c-why{color:var(--mist-dim);font-family:var(--sans);font-size:.7rem;}
+.c-score{display:flex;flex-direction:column;align-items:flex-start;gap:.3rem;white-space:nowrap;}
+.c-score b{color:var(--cyan-soft);font-weight:500;}
+.qbar{width:100%;max-width:46px;height:5px;border-radius:3px;background:rgba(194,214,227,.14);overflow:hidden;flex:none;}
+.qbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--steel),var(--cyan));
+  border-radius:3px;transition:width 1s var(--ease);}
+.qcard__foot{
+  padding:.6rem 1.1rem;border-top:1px solid var(--line-dark);
+  font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mist-dim);
+  display:flex;justify-content:space-between;gap:1rem;
+}
+
+/* ============================================================ ABOUT ===== */
+.about__grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(2rem,5vw,4.5rem);align-items:start;}
+.lede{
+  font-family:var(--serif);font-weight:400;font-size:clamp(1.5rem,2.9vw,2.15rem);
+  line-height:1.32;letter-spacing:-.01em;color:var(--midnight);margin:0;
+}
+.lede b{font-weight:600;}
+.lede .hl{color:var(--steel);font-style:italic;}
+.about__body{color:var(--slate);font-size:1.02rem;}
+.about__body p{margin:0 0 1.1rem;}
+.about__body strong{color:var(--ink);font-weight:600;}
+
+/* KPI scorecard — one card per metric, each a distinct brand tone */
+.kpis{
+  margin-top:clamp(2.5rem,5vw,4rem);
+  display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(.7rem,1.1vw,1rem);
+  align-items:stretch;
+}
+.kpi{
+  display:flex;flex-direction:column;
+  padding:clamp(1.15rem,1.7vw,1.55rem);
+  border-radius:14px;color:#fff;
+  box-shadow:0 14px 34px -20px rgba(11,41,66,.55);
+}
+.kpi--1{background:var(--midnight);}
+.kpi--2{background:var(--steel);}
+.kpi--3{background:#0C6B74;}
+.kpi--4{background:var(--cyan);color:#08243B;}
+.kpi--5{background:#2D4756;}
+.kpi__n{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,2.7vw,2.4rem);
+  color:inherit;line-height:1;letter-spacing:-.02em;white-space:nowrap;}
+.kpi__l{font-family:var(--sans);font-size:.78rem;line-height:1.5;
+  color:inherit;opacity:.88;margin-top:.7rem;}
+.kpi__l b{font-weight:700;opacity:1;}
+
+/* ============================================================ TIMELINE == */
+.tl{margin-top:clamp(2.5rem,5vw,3.5rem);}
+.tl__row{
+  display:grid;grid-template-columns:9rem 1fr;gap:clamp(1rem,3vw,3rem);
+  padding:2rem 0;border-top:1px solid var(--line-dark);
+}
+.tl__row:last-child{border-bottom:1px solid var(--line-dark);}
+.tl__when{font-family:var(--mono);font-size:.82rem;letter-spacing:.04em;color:var(--cyan);padding-top:.4rem;}
+.tl__co{font-family:var(--serif);font-size:clamp(1.3rem,2.3vw,1.7rem);font-weight:600;color:var(--white);margin:0;}
+.tl__role{font-family:var(--mono);font-size:.78rem;letter-spacing:.04em;color:var(--mist);margin:.55rem 0 0;text-transform:uppercase;}
+.tl__desc{margin:.9rem 0 0;color:var(--mist);max-width:62ch;}
+.tl__desc b{color:var(--white);font-weight:600;}
+
+/* ============================================================ WORK ====== */
+.work__intro{max-width:46ch;margin:1.4rem 0 0;color:var(--slate);font-size:1.1rem;}
+.feature{
+  display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.5rem,4vw,4rem);
+  align-items:center;padding:clamp(3rem,6vw,5rem) 0;border-top:1px solid var(--line-light);
+}
+.feature:first-of-type{border-top:0;}
+.feature__media{order:2;}
+.feature--flip .feature__text{order:2;}
+.feature--flip .feature__media{order:1;}
+
+.feature__tag{
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--steel);margin:0 0 1rem;display:flex;align-items:center;gap:.6rem;
+}
+.feature__tag .yr{color:var(--slate);}
+.feature__title{
+  font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,3.1vw,2.3rem);
+  line-height:1.06;letter-spacing:-.018em;color:var(--midnight);margin:0;
+}
+.feature__dek{font-size:1.08rem;color:var(--slate);margin:1rem 0 0;max-width:42ch;font-style:italic;}
+
+.blocks{margin:1.8rem 0 0;display:grid;gap:1.15rem;}
+.block{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:baseline;}
+.block__k{
+  font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--steel);white-space:nowrap;padding-top:.15rem;
+  border-left:2px solid var(--cyan);padding-left:.7rem;
+}
+.block__v{margin:0;color:var(--ink);font-size:.97rem;line-height:1.6;}
+.block__v b{font-weight:600;}
+.block__v .stack{font-family:var(--mono);font-size:.84rem;color:var(--steel);}
+
+/* schematic panel */
+.schematic{
+  background:linear-gradient(165deg,var(--midnight),#0a2540);border-radius:var(--radius);
+  border:1px solid rgba(11,41,66,.18);padding:clamp(1.4rem,3vw,2.4rem);
+  box-shadow:0 24px 50px -28px rgba(11,41,66,.5);
+}
+.schematic svg{width:100%;height:auto;}
+.schematic .cap{
+  font-family:var(--mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mist-dim);margin-top:1.1rem;text-align:center;
+}
+/* svg shared styling */
+.dia{font-family:var(--mono);}
+.dia .stroke{stroke:var(--mist);stroke-width:1.4;fill:none;opacity:.55;}
+.dia .stroke-c{stroke:var(--cyan);stroke-width:1.6;fill:none;}
+.dia .node{fill:var(--midnight-2);stroke:var(--mist);stroke-width:1.3;opacity:.9;}
+.dia .node-c{fill:rgba(41,181,232,.16);stroke:var(--cyan);stroke-width:1.6;}
+.dia .txt{fill:var(--mist);font-size:9px;letter-spacing:.06em;}
+.dia .txt-c{fill:var(--cyan);font-size:9px;letter-spacing:.06em;}
+.dia .bar{fill:rgba(194,214,227,.16);}
+.dia .bar-c{fill:var(--cyan);}
+
+/* ============================================================ EDU ======= */
+.edu__grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,5vw,4.5rem);margin-top:clamp(2rem,4vw,3rem);}
+.minihead{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);margin:0 0 1.5rem;}
+.item{padding:1.1rem 0;border-top:1px solid var(--line-dark);}
+.item:first-of-type{border-top:0;}
+.item__t{font-family:var(--serif);font-size:1.22rem;font-weight:600;color:var(--white);margin:0;}
+.item__s{font-family:var(--mono);font-size:.76rem;color:var(--mist);margin:.4rem 0 0;letter-spacing:.03em;}
+.awards{list-style:none;margin:0;padding:0;}
+.awards li{padding:1.1rem 0;border-top:1px solid var(--line-dark);color:var(--mist);
+  display:flex;gap:.8rem;align-items:baseline;}
+.awards li:first-child{border-top:0;}
+.awards li::before{content:"◆";color:var(--cyan);font-size:.7rem;}
+
+/* ============================================================ CONTACT === */
+.contact{
+  background:
+    radial-gradient(80% 120% at 100% 0%,rgba(41,181,232,.14),transparent 55%),
+    var(--midnight);
+  text-align:left;
+}
+.contact__big{
+  font-family:var(--serif);font-weight:600;color:var(--white);
+  font-size:clamp(2.6rem,7vw,5.5rem);line-height:.98;letter-spacing:-.025em;margin:0;
+}
+.contact__big em{font-style:italic;color:var(--cyan-soft);font-weight:400;}
+.contact__links{margin:2.6rem 0 0;display:flex;flex-wrap:wrap;gap:1rem 1.4rem;}
+.clink{
+  display:inline-flex;align-items:center;gap:.7rem;
+  border:1px solid var(--line-dark);border-radius:999px;padding:.8rem 1.4rem;
+  font-family:var(--mono);font-size:.82rem;letter-spacing:.04em;color:var(--mist);
+  transition:border-color .3s,color .3s,background .3s,transform .3s var(--ease);
+}
+.clink:hover{border-color:var(--cyan);color:var(--white);background:rgba(41,181,232,.08);transform:translateY(-2px);}
+.clink svg{width:16px;height:16px;stroke:var(--cyan);fill:none;stroke-width:1.6;}
+.footer{
+  margin-top:clamp(3.5rem,7vw,6rem);padding-top:1.6rem;border-top:1px solid var(--line-dark);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mist-dim);
+}
+
+/* ============================================================ REVEAL ==== */
+.reveal{opacity:0;transform:translateY(26px);}
+.reveal.is-in{opacity:1;transform:none;transition:opacity .9s var(--ease),transform .9s var(--ease);}
+.reveal.d1{transition-delay:.08s;}
+.reveal.d2{transition-delay:.16s;}
+.reveal.d3{transition-delay:.24s;}
+
+/* ============================================================ RESPONSIVE = */
+/* Uniform scaling: arrangement holds through normal zoom; only true phone width stacks. */
+@media (max-width:680px){
+  .hero__grid,.about__grid,.feature,.edu__grid{grid-template-columns:1fr;}
+  .hero__grid{gap:2.5rem;}
+  .feature__media,.feature--flip .feature__media,.feature--flip .feature__text{order:0;}
+  .feature__media{margin-top:.5rem;}
+  .tl__row{grid-template-columns:1fr;gap:.5rem;}
+  .tl__when{padding-top:0;}
+  .nav__links{display:none;}
+  .block{grid-template-columns:1fr;gap:.3rem;}
+  .block__k{border-left:0;border-top:2px solid var(--cyan);padding-left:0;padding-top:.5rem;}
+  .kpis{grid-template-columns:1fr;}
+}
+
+/* ============================================================ A11Y ====== */
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important;scroll-behavior:auto !important;}
+  .reveal,.qcard,.qcard__body,.qcard__call,.qcard__result tbody tr{opacity:1 !important;transform:none !important;}
+}
+</style>
+</head>
+<body>
+
+<!-- ================================================================ NAV -->
+<header class="nav" id="nav">
+  <a class="nav__mark" href="#top" aria-label="Wenlong Song — home">
+    Data + AI = <b>&#8734;</b>
+  </a>
+  <nav aria-label="Sections">
+    <ul class="nav__links">
+      <li><a href="#about">About me</a></li>
+      <li><a href="#career">My journey</a></li>
+      <li><a href="#work">Selected work</a></li>
+      <li><a href="#contact">Contact me</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="top">
+
+<!-- =============================================================== HERO -->
+<section class="spread spread--dark hero" id="hero">
+  <div class="lattice" aria-hidden="true">
+    <svg class="l-tr" viewBox="0 0 200 200" fill="none">
+      <g stroke="#29B5E8" stroke-width="1" opacity=".5">
+        <path d="M100 10 L160 45 L160 115 L100 150 L40 115 L40 45 Z"/>
+        <path d="M100 10 L100 150 M40 45 L160 115 M160 45 L40 115"/>
+        <circle cx="100" cy="80" r="46"/>
+      </g>
+    </svg>
+    <svg class="l-bl" viewBox="0 0 200 200" fill="none">
+      <g stroke="#29B5E8" stroke-width="1" opacity=".5">
+        <path d="M100 20 L170 60 L170 140 L100 180 L30 140 L30 60 Z"/>
+        <path d="M30 60 L170 140 M170 60 L30 140 M100 20 L100 180"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="wrap hero__grid">
+    <div class="hero__head">
+      <p class="hero__eyebrow">Transformative AI-first Data Science Leader</p>
+      <h1 class="masthead" id="masthead">
+        <span class="ln"><span>Wenlong Song</span></span>
+      </h1>
+      <p class="hero__dek">
+        I build growth engine with <b>data and AI</b> — from the data foundation up to the
+        <b>Done-for-You capabilities</b> that power the internal GTM workflows or the
+        customer's in-product workflows.
+      </p>
+      <a class="hero__cue" href="#about">
+        <span class="arr" aria-hidden="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+        </span>
+        Scroll to explore
+      </a>
+    </div>
+
+    <!-- SIGNATURE: agent demo — rotates between Account Scoring and Product Intelligence -->
+    <div class="qcard reveal" id="qcard" role="img"
+         aria-label="Illustrative AI agent demo using synthetic data. It cycles between two questions: 'Who should I sell to today', answered by an account-scoring framework that ranks synthetic accounts by score, incremental revenue and recommended product; and 'What product features should we prioritize next quarter', answered by a product-intelligence model that ranks feature opportunities by lost deals, churn and revenue impact.">
+      <div class="qcard__bar" aria-hidden="true">
+        <i></i><i></i><i></i>
+        <span class="qcard__tag"><span class="qcard__live"></span><b id="qtag">account scoring</b> · live</span>
+      </div>
+      <div class="qcard__body" id="qbody" aria-hidden="true">
+        <div class="qcard__prompt">
+          <span class="pp">❯</span>
+          <span><span id="qtype"></span><span class="caret" id="caret">.</span></span>
+        </div>
+        <div class="qcard__call" id="qcall"></div>
+        <div class="qcard__scroll">
+          <table class="qcard__result">
+            <thead id="qhead"></thead>
+            <tbody id="qrows"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="qcard__foot" aria-hidden="true">
+        <span id="qfootname">account scoring · GTM</span><span>illustrative — synthetic data</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== ABOUT -->
+<section class="spread spread--light" id="about">
+  <div class="wrap about__grid">
+    <div class="reveal">
+      <p class="eyebrow">The thesis</p>
+      <p class="lede">
+        Most data teams react to the questions they're handed; I'd rather
+        <b>hunt</b> for the opportunity no one has named yet. And where most
+        leaders ask their team for an answer, I ask mine for an
+        <span class="hl">idea</span> — because an answer ends a conversation,
+        but an idea begins the next chapter of growth.
+      </p>
+    </div>
+    <div class="about__body reveal d1">
+      <p>
+        I'm <strong>Wenlong Song</strong>, and I lead the data science team behind
+        Intuit's Mid-Market business. Across <strong>14+ years</strong>, I've used data
+        science to drive growth in consulting, C2C e-commerce, and B2B SaaS — and across
+        Marketing, Sales, and Product. The throughline I keep returning to, and where my
+        energy lives today, is <strong>B2B go-to-market and product growth</strong>: turning
+        how a business finds, wins, and keeps its customers into something a model can sharpen.
+      </p>
+      <p>
+        What energizes me most is reinvention — I've led teams through every major shift of
+        the modern data era. In <strong>what we deliver</strong>: BI and descriptive dashboards
+        &rarr; advanced analytics — segmentation, experimentation, causal inference, propensity
+        &rarr; <strong>LLMs</strong> that extract precise insight from unstructured data at scale.
+      </p>
+      <p>
+        And in <strong>how we build it</strong>: relational warehouses (SQL Server, Teradata)
+        &rarr; Hadoop / Spark &rarr; cloud data lakehouses (Snowflake, Databricks) — and from
+        fragmented, manual tooling to <strong>end-to-end autonomous workflows</strong> powered
+        by Claude Code and MCP. Every shift is a chance to raise what a team believes is possible.
+      </p>
+    </div>
+  </div>
+
+  <div class="wrap kpis reveal d2" aria-label="Career highlights">
+    <div class="kpi kpi--1">
+      <div class="kpi__n">2</div>
+      <div class="kpi__l"><b>Multi-billion-dollar growth initiatives</b> I drive data science strategy for &mdash; Focused Verticals at eBay and Mid-Market at Intuit.</div>
+    </div>
+    <div class="kpi kpi--2">
+      <div class="kpi__n">5X+</div>
+      <div class="kpi__l"><b>Seller productivity lift</b> &mdash; from lead &amp; account scoring, contact intelligence, talk tracks, and pipeline health embedded in the seller&#8217;s workflow.</div>
+    </div>
+    <div class="kpi kpi--3">
+      <div class="kpi__n">3 &rarr; 25</div>
+      <div class="kpi__l"><b>Scaled the team</b> from 3 to 25+ data scientists.</div>
+    </div>
+    <div class="kpi kpi--4">
+      <div class="kpi__n">3X</div>
+      <div class="kpi__l"><b>Data scientist productivity</b> from building autonomous, AI-driven workflows.</div>
+    </div>
+    <div class="kpi kpi--5">
+      <div class="kpi__n">20+</div>
+      <div class="kpi__l"><b>High-impact insights</b> presented to senior executive leadership in the last 12 months &mdash; delivering insights at scale.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= CAREER -->
+<section class="spread spread--dark" id="career">
+  <div class="wrap">
+    <div class="reveal">
+      <p class="eyebrow">Career</p>
+      <h2 class="s-title">Fourteen years turning data into growth.</h2>
+    </div>
+    <div class="tl">
+      <div class="tl__row reveal">
+        <div class="tl__when">2022&mdash;Now</div>
+        <div>
+          <h3 class="tl__co">Intuit</h3>
+          <p class="tl__role">Head of Mid-Market Data Science · San Jose, CA</p>
+          <p class="tl__desc">
+            Own GTM data science strategy across Marketing, Sales, and Product. <b>Scaled the team
+            from 3 to 25</b> and lead a broader org of <b>50+</b> data scientists. Mid-Market is
+            Intuit's <b>#1 revenue-growth driver</b>, and I act as a trusted advisor to its most
+            senior GTM leadership.
+          </p>
+        </div>
+      </div>
+      <div class="tl__row reveal">
+        <div class="tl__when">2013&mdash;2022</div>
+        <div>
+          <h3 class="tl__co">eBay</h3>
+          <p class="tl__role">Senior Data Science Manager — Head of Buyer Product Analytics · San Jose, CA</p>
+          <p class="tl__desc">
+            Built and led a global team of <b>12+</b> across Search, Buyer Experience, Messaging,
+            and Selling. Owned product measurement, health monitoring, and <b>A/B experimentation
+            at scale</b>. Earned 4 promotions and a Critical Talent Award (top &lt;1%).
+          </p>
+        </div>
+      </div>
+      <div class="tl__row reveal">
+        <div class="tl__when">2012&mdash;2013</div>
+        <div>
+          <h3 class="tl__co">Rapp Collins</h3>
+          <p class="tl__role">Data Analyst · Singapore</p>
+          <p class="tl__desc">
+            Delivered consulting analytics for major retail, F&amp;B, and telecom brands; automated
+            recurring reporting and strengthened in-house data-quality and analytics capability.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================================== WORK -->
+<section class="spread spread--light" id="work">
+  <div class="wrap">
+    <div class="reveal">
+      <p class="eyebrow">Selected work</p>
+      <h2 class="s-title">Six systems that moved the business.</h2>
+      <p class="work__intro">
+        Each one shipped to production and into the daily workflow of sellers, marketers, or product
+        managers. For every project: the framework, the architecture, and the impact.
+      </p>
+    </div>
+
+    <!-- 1 · IES -->
+    <article class="feature reveal">
+      <div class="feature__text">
+        <p class="feature__tag">Platform · Data Foundation <span class="yr">· 2024</span></p>
+        <h3 class="feature__title">Intuit Enterprise Suite — segmentation &amp; multi-entity foundation</h3>
+        <p class="feature__dek">The data capability that reframed the Mid-Market opportunity — and seeded a new flagship product line.</p>
+        <div class="blocks">
+          <div class="block"><span class="block__k">Framework<br>&amp; Stack</span>
+            <p class="block__v">Entity resolution, customer segmentation, and opportunity sizing.
+              <span class="stack">Python · PySpark · SQL · large-scale lakehouse</span></p></div>
+          <div class="block"><span class="block__k">Architecture<br>&amp; Design</span>
+            <p class="block__v">A multi-entity ("multi-sub") resolution pipeline links accounts into corporate
+              families; a new segmentation framework re-cuts the base by structure and potential;
+              opportunity sizing feeds GTM strategy and product planning — built as a reusable data
+              foundation other GTM models consume.</p></div>
+          <div class="block"><span class="block__k">Business<br>Impact</span>
+            <p class="block__v">Reshaped how the company sizes Mid-Market opportunity and became the analytical
+              foundation for a <b>new flagship product line</b>.</p></div>
+        </div>
+      </div>
+      <div class="feature__media">
+        <div class="schematic">
+          <svg class="dia" viewBox="0 0 320 170" role="img" aria-label="Subsidiary accounts resolved into a parent corporate family, then grouped into segments.">
+            <circle class="node" cx="40" cy="35" r="13"/><circle class="node" cx="40" cy="85" r="13"/><circle class="node" cx="40" cy="135" r="13"/>
+            <path class="stroke-c" d="M53 35 C95 35 95 85 130 85 M53 85 H130 M53 135 C95 135 95 85 130 85"/>
+            <rect class="node-c" x="130" y="66" width="46" height="38" rx="8"/>
+            <text class="txt-c" x="138" y="89">PARENT</text>
+            <path class="stroke-c" d="M176 85 H210"/>
+            <rect class="node" x="210" y="30" width="74" height="22" rx="6"/><text class="txt" x="220" y="45">segment A</text>
+            <rect class="node" x="210" y="74" width="74" height="22" rx="6"/><text class="txt" x="220" y="89">segment B</text>
+            <rect class="node" x="210" y="118" width="74" height="22" rx="6"/><text class="txt" x="220" y="133">segment C</text>
+            <text class="txt" x="18" y="160">multi-entity resolution → segmentation</text>
+          </svg>
+          <p class="cap">entity graph · segmentation</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- 2 · Account Scoring -->
+    <article class="feature feature--flip reveal">
+      <div class="feature__text">
+        <p class="feature__tag">Sales · CRM <span class="yr">· 2026</span></p>
+        <h3 class="feature__title">Sales account scoring</h3>
+        <p class="feature__dek">A propensity model that tells every seller which accounts to call — and why.</p>
+        <div class="blocks">
+          <div class="block"><span class="block__k">Framework<br>&amp; Stack</span>
+            <p class="block__v">Account-level propensity scoring with an LLM rationale layer.
+              <span class="stack">Python · gradient-boosted models · LLM · Salesforce</span></p></div>
+          <div class="block"><span class="block__k">Architecture<br>&amp; Design</span>
+            <p class="block__v">A feature pipeline on the lakehouse feeds a scoring model; an LLM layer writes a
+              plain-language rationale and a suggested talk track; scores surface natively in the
+              seller's CRM queue, with outcomes fed back for retraining.</p></div>
+          <div class="block"><span class="block__k">Business<br>Impact</span>
+            <p class="block__v">A core driver of the seller-productivity program — <b>80%+ weekly adoption</b> and a
+              <b>5× lift in seller productivity</b> (with Contact Intelligence).</p></div>
+        </div>
+      </div>
+      <div class="feature__media">
+        <div class="schematic">
+          <svg class="dia" viewBox="0 0 320 170" role="img" aria-label="Account features feeding a model that outputs ranked scores surfaced in the CRM.">
+            <rect class="node" x="14" y="40" width="62" height="20" rx="5"/><text class="txt" x="24" y="54">features</text>
+            <rect class="node" x="14" y="74" width="62" height="20" rx="5"/><text class="txt" x="24" y="88">signals</text>
+            <rect class="node" x="14" y="108" width="62" height="20" rx="5"/><text class="txt" x="24" y="122">engagement</text>
+            <path class="stroke-c" d="M76 50 H110 M76 84 H110 M76 118 H110"/>
+            <rect class="node-c" x="110" y="64" width="44" height="40" rx="9"/><text class="txt-c" x="120" y="88">model</text>
+            <path class="stroke-c" d="M154 84 H180"/>
+            <rect class="bar-c" x="184" y="46" width="92" height="11" rx="3"/>
+            <rect class="bar-c" x="184" y="63" width="74" height="11" rx="3" opacity=".8"/>
+            <rect class="bar" x="184" y="80" width="58" height="11" rx="3"/>
+            <rect class="bar" x="184" y="97" width="42" height="11" rx="3"/>
+            <text class="txt-c" x="184" y="128">ranked accounts → CRM</text>
+          </svg>
+          <p class="cap">propensity · rationale · CRM</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- 3 · Contact Intelligence -->
+    <article class="feature reveal">
+      <div class="feature__text">
+        <p class="feature__tag">Sales · CRM <span class="yr">· 2026</span></p>
+        <h3 class="feature__title">Contact intelligence</h3>
+        <p class="feature__dek">Not just which account — which person to call, and the reason to call them now.</p>
+        <div class="blocks">
+          <div class="block"><span class="block__k">Framework<br>&amp; Stack</span>
+            <p class="block__v">Contact ranking over an account→contact graph with role and engagement signals.
+              <span class="stack">Python · graph features · SQL · Salesforce</span></p></div>
+          <div class="block"><span class="block__k">Architecture<br>&amp; Design</span>
+            <p class="block__v">Builds a contact graph per account, scores each contact for reachability and
+              influence, and generates a reason-to-call — delivered next to account scores in the CRM.</p></div>
+          <div class="block"><span class="block__k">Business<br>Impact</span>
+            <p class="block__v">Removes manual prospecting guesswork; part of the same workflow that reached
+              <b>80%+ weekly adoption</b> by the field.</p></div>
+        </div>
+      </div>
+      <div class="feature__media">
+        <div class="schematic">
+          <svg class="dia" viewBox="0 0 320 170" role="img" aria-label="An account node linked to several contacts, with the best contact highlighted.">
+            <rect class="node-c" x="20" y="68" width="56" height="34" rx="8"/><text class="txt-c" x="30" y="89">account</text>
+            <path class="stroke" d="M76 85 C120 30 150 30 196 38"/>
+            <path class="stroke-c" d="M76 85 C120 85 150 85 196 85"/>
+            <path class="stroke" d="M76 85 C120 140 150 140 196 132"/>
+            <circle class="node" cx="210" cy="38" r="13"/><text class="txt" x="230" y="42">contact</text>
+            <circle class="node-c" cx="210" cy="85" r="15"/><text class="txt-c" x="232" y="82">best</text><text class="txt-c" x="232" y="93">contact</text>
+            <circle class="node" cx="210" cy="132" r="13"/><text class="txt" x="230" y="136">contact</text>
+            <text class="txt" x="20" y="160">graph → ranked, reason to call</text>
+          </svg>
+          <p class="cap">contact graph · reason-to-call</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- 4 · Product Growth Intelligence -->
+    <article class="feature feature--flip reveal">
+      <div class="feature__text">
+        <p class="feature__tag">Product · LLM <span class="yr">· 2026</span></p>
+        <h3 class="feature__title">Product growth intelligence — LUMINA</h3>
+        <p class="feature__dek">Turning the voice of the customer into a ranked list of what to build next.</p>
+        <div class="blocks">
+          <div class="block"><span class="block__k">Framework<br>&amp; Stack</span>
+            <p class="block__v">An LLM pipeline over multi-source Voice-of-Customer data.
+              <span class="stack">Python · LLM extraction · classification · PM-facing app</span></p></div>
+          <div class="block"><span class="block__k">Architecture<br>&amp; Design</span>
+            <p class="block__v">Ingests unstructured VoC from call transcripts, Gong, Slack, and trackers; an LLM
+              extracts and classifies the drivers behind deal won/lost, refunds, and cancellations;
+              the system estimates the value of closing each feature gap and ranks it for PMs.</p></div>
+          <div class="block"><span class="block__k">Business<br>Impact</span>
+            <p class="block__v">Widely adopted by product managers; shifted prioritization from anecdote to
+              <b>evidence</b> and accelerated several high-value feature gaps.</p></div>
+        </div>
+      </div>
+      <div class="feature__media">
+        <div class="schematic">
+          <svg class="dia" viewBox="0 0 320 170" role="img" aria-label="Four voice-of-customer sources converging through an LLM into a ranked feature-gap list.">
+            <rect class="node" x="12" y="20" width="70" height="18" rx="5"/><text class="txt" x="20" y="33">call transcripts</text>
+            <rect class="node" x="12" y="58" width="70" height="18" rx="5"/><text class="txt" x="34" y="71">Gong</text>
+            <rect class="node" x="12" y="96" width="70" height="18" rx="5"/><text class="txt" x="34" y="109">Slack</text>
+            <rect class="node" x="12" y="134" width="70" height="18" rx="5"/><text class="txt" x="30" y="147">trackers</text>
+            <path class="stroke-c" d="M82 29 C120 29 120 85 150 85 M82 67 C120 67 120 85 150 85 M82 105 C120 105 120 85 150 85 M82 143 C120 143 120 85 150 85"/>
+            <rect class="node-c" x="150" y="66" width="40" height="38" rx="9"/><text class="txt-c" x="160" y="89">LLM</text>
+            <path class="stroke-c" d="M190 85 H214"/>
+            <rect class="bar-c" x="218" y="60" width="86" height="10" rx="3"/>
+            <rect class="bar-c" x="218" y="76" width="66" height="10" rx="3" opacity=".75"/>
+            <rect class="bar" x="218" y="92" width="48" height="10" rx="3"/>
+            <text class="txt-c" x="218" y="122">ranked feature gaps</text>
+          </svg>
+          <p class="cap">VoC ingestion · driver mining</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- 5 · GTM Measurement & Causal -->
+    <article class="feature reveal">
+      <div class="feature__text">
+        <p class="feature__tag">Growth · Measurement <span class="yr">· 2024</span></p>
+        <h3 class="feature__title">GTM measurement &amp; causal inference</h3>
+        <p class="feature__dek">One measurement language for the whole funnel — and causal answers, not just correlations.</p>
+        <div class="blocks">
+          <div class="block"><span class="block__k">Framework<br>&amp; Stack</span>
+            <p class="block__v">End-to-end funnel measurement, need-centric targeting, and causal inference.
+              <span class="stack">Python · quasi-experimental design · SQL</span></p></div>
+          <div class="block"><span class="block__k">Architecture<br>&amp; Design</span>
+            <p class="block__v">A unified metric layer defines the Mid-Market funnel end to end; a need-centric
+              targeting framework prioritizes audiences by demonstrated need; causal studies
+              (feature-engagement→retention, downgrade root-cause) quantify what actually moves
+              the outcome.</p></div>
+          <div class="block"><span class="block__k">Business<br>Impact</span>
+            <p class="block__v">Gave Marketing, Sales, and Product a <b>shared, trusted view of the funnel</b> and
+              sharper targeting — the measurement backbone behind GTM decisions.</p></div>
+        </div>
+      </div>
+      <div class="feature__media">
+        <div class="schematic">
+          <svg class="dia" viewBox="0 0 320 170" role="img" aria-label="A measured funnel with stage markers and a small A/B causal split.">
+            <path class="stroke-c" d="M20 28 H210 L176 60 H54 Z"/>
+            <path class="stroke-c" d="M54 60 H176 L150 92 H80 Z"/>
+            <path class="stroke-c" d="M80 92 H150 L130 124 H100 Z"/>
+            <circle class="bar-c" cx="20" cy="28" r="3"/><circle class="bar-c" cx="54" cy="60" r="3"/>
+            <circle class="bar-c" cx="80" cy="92" r="3"/><circle class="bar-c" cx="100" cy="124" r="3"/>
+            <text class="txt" x="224" y="32">awareness</text>
+            <text class="txt" x="224" y="64">consideration</text>
+            <text class="txt" x="224" y="96">intent</text>
+            <text class="txt" x="224" y="128">conversion</text>
+            <path class="stroke" d="M150 150 H120 M150 150 H180" />
+            <rect class="node-c" x="106" y="142" width="16" height="16" rx="3"/><text class="txt-c" x="108" y="153">A</text>
+            <rect class="node" x="176" y="142" width="16" height="16" rx="3"/><text class="txt" x="178" y="153">B</text>
+            <text class="txt" x="20" y="153">causal A/B</text>
+          </svg>
+          <p class="cap">funnel metric layer · causal test</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- 6 · AI Transformation -->
+    <article class="feature feature--flip reveal">
+      <div class="feature__text">
+        <p class="feature__tag">AI Org · Platform <span class="yr">· 2026</span></p>
+        <h3 class="feature__title">Data science AI-native transformation</h3>
+        <p class="feature__dek">Re-platforming a 50-person data science org around agents.</p>
+        <div class="blocks">
+          <div class="block"><span class="block__k">Framework<br>&amp; Stack</span>
+            <p class="block__v">A semantic-layer agent skill plus an agent-native toolchain.
+              <span class="stack">Claude · Claude Code · MCP (GitHub, Databricks, Slack) · analytics skills</span></p></div>
+          <div class="block"><span class="block__k">Architecture<br>&amp; Design</span>
+            <p class="block__v">A semantic layer over the data foundation lets an agent answer business questions
+              reliably; the org moved from a fragmented toolchain to an agent-native workflow
+              (Claude Code + MCP) with shared, versioned skills.</p></div>
+          <div class="block"><span class="block__k">Business<br>Impact</span>
+            <p class="block__v">Semantic-layer skill passes <b>90%+</b> of a 100+ question benchmark; <b>100%</b> of the
+              org migrated; <b>~3× analytics output</b> (executive readouts 1→3–4 per month; deep-dive
+              dashboards 10→2 days).</p></div>
+        </div>
+      </div>
+      <div class="feature__media">
+        <div class="schematic">
+          <svg class="dia" viewBox="0 0 320 170" role="img" aria-label="A semantic layer feeding an agent that connects via MCP to GitHub, Databricks, and Slack.">
+            <rect class="node" x="20" y="40" width="80" height="18" rx="4"/><text class="txt" x="28" y="53">data foundation</text>
+            <rect class="node" x="20" y="66" width="80" height="18" rx="4"/><text class="txt" x="30" y="79">semantic layer</text>
+            <rect class="node-c" x="20" y="92" width="80" height="22" rx="6"/><text class="txt-c" x="46" y="107">agent</text>
+            <path class="stroke-c" d="M100 103 H140"/>
+            <circle class="node-c" cx="160" cy="103" r="15"/><text class="txt-c" x="150" y="107">MCP</text>
+            <path class="stroke-c" d="M175 103 C210 103 210 40 244 40 M175 103 H244 M175 103 C210 103 210 150 244 150"/>
+            <rect class="node" x="244" y="31" width="64" height="18" rx="4"/><text class="txt" x="254" y="44">GitHub</text>
+            <rect class="node" x="244" y="94" width="64" height="18" rx="4"/><text class="txt" x="250" y="107">Databricks</text>
+            <rect class="node" x="244" y="141" width="64" height="18" rx="4"/><text class="txt" x="258" y="154">Slack</text>
+          </svg>
+          <p class="cap">semantic layer · agent · MCP</p>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ===================================================== EDU + RECOGNITION -->
+<section class="spread spread--dark" id="edu">
+  <div class="wrap">
+    <div class="reveal">
+      <p class="eyebrow">Foundations</p>
+      <h2 class="s-title">Education &amp; recognition.</h2>
+    </div>
+    <div class="edu__grid">
+      <div class="reveal">
+        <p class="minihead">Education</p>
+        <div class="item">
+          <h3 class="item__t">M.S., Statistics</h3>
+          <p class="item__s">National University of Singapore</p>
+        </div>
+        <div class="item">
+          <h3 class="item__t">B.S., Biotechnology</h3>
+          <p class="item__s">East China University of Science &amp; Technology</p>
+        </div>
+      </div>
+      <div class="reveal d1">
+        <p class="minihead">Recognition</p>
+        <ul class="awards">
+          <li>Critical Talent Award — top &lt;1% of talent</li>
+          <li>4 promotions across analytics and data science leadership</li>
+          <li>Multiple Spot Awards for high-impact delivery</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CONTACT -->
+<section class="spread spread--dark contact" id="contact">
+  <div class="lattice" aria-hidden="true">
+    <svg class="l-tr" viewBox="0 0 200 200" fill="none">
+      <g stroke="#29B5E8" stroke-width="1" opacity=".45">
+        <path d="M100 10 L160 45 L160 115 L100 150 L40 115 L40 45 Z"/>
+        <path d="M100 10 L100 150 M40 45 L160 115 M160 45 L40 115"/>
+      </g>
+    </svg>
+  </div>
+  <div class="wrap">
+    <p class="eyebrow reveal">Let's talk</p>
+    <h2 class="contact__big reveal d1">
+      Let's build something<br><em>that moves the number.</em>
+    </h2>
+    <div class="contact__links reveal d2">
+      <a class="clink" href="mailto:wenlong.song@outlook.com">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        wenlong.song@outlook.com
+      </a>
+      <a class="clink" href="https://www.linkedin.com/in/wenlong-s-29277834/" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 10v7M7 7v.01M11 17v-4a2 2 0 014 0v4"/></svg>
+        linkedin.com/in/wenlong-s
+      </a>
+    </div>
+    <div class="footer">
+      <span>Wenlong Song — Data Science Leader</span>
+      <span>GTM · Analytics · AI</span>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---- nav condense on scroll ---- */
+  var nav = document.getElementById("nav");
+  function onScroll(){ nav.classList.toggle("is-scrolled", window.scrollY > 24); }
+  onScroll(); window.addEventListener("scroll", onScroll, {passive:true});
+
+  /* ---- scroll reveal ---- */
+  var reveals = [].slice.call(document.querySelectorAll(".reveal"));
+  if (reduce || !("IntersectionObserver" in window)){
+    reveals.forEach(function(el){ el.classList.add("is-in"); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add("is-in"); io.unobserve(e.target); }
+      });
+    }, {threshold:0.16, rootMargin:"0px 0px -8% 0px"});
+    reveals.forEach(function(el){ io.observe(el); });
+  }
+
+  /* ---- hero masthead load reveal ---- */
+  function showMasthead(){
+    var spans = document.querySelectorAll("#masthead .ln span");
+    spans.forEach(function(s,i){
+      if (reduce){ s.style.transform="none"; s.style.opacity="1"; return; }
+      s.style.transform="translateY(110%)"; s.style.opacity="0";
+      s.style.transition="transform .9s "+ "cubic-bezier(.22,.61,.36,1) "+(i*0.12+0.1)+"s, opacity .9s ease "+(i*0.12+0.1)+"s";
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ s.style.transform="none"; s.style.opacity="1"; }); });
+    });
+  }
+
+  /* ---- SIGNATURE: rotating agent demo (Account Scoring ⇄ Product Intelligence) ---- */
+  var typeEl = document.getElementById("qtype");
+  var caret  = document.getElementById("caret");
+  var card   = document.getElementById("qcard");
+  var qbody  = document.getElementById("qbody");
+  var tagEl  = document.getElementById("qtag");
+  var callEl = document.getElementById("qcall");
+  var headEl = document.getElementById("qhead");
+  var rowsEl = document.getElementById("qrows");
+  var footEl = document.getElementById("qfootname");
+
+  var DEMOS = [
+    { tag:"account scoring", foot:"account scoring · GTM",
+      query:"Who should I sell to today",
+      call:"Calling Account Scoring Framework",
+      cols:["Account ID","Score","Incr. Revenue","Recommended Product","Why it ranks"],
+      rows:[
+        ["A-7741",{score:94},"$14.2K","Bookkeeping · Multi-entity","multi-entity group"],
+        ["A-3920",{score:91},"$11.8K","Payroll","payroll signal"],
+        ["A-1185",{score:88},"$9.6K","Bookkeeping · Basic","high engagement"],
+        ["A-6034",{score:82},"$7.3K","Billpay","renewal window"]
+      ] },
+    { tag:"product intelligence", foot:"product intelligence · GTM",
+      query:"what product features we should prioritize in next quarter",
+      call:"Calling Product Intelligence",
+      cols:["Feature","% Lost Deals","% Churn","Rev. Impact","Why it ranks"],
+      rows:[
+        ["Certified Payroll Report","22%","15%","$2.4M","top deal blocker"],
+        ["Intercompany Elimination","18%","13%","$1.9M","top churn driver"],
+        ["Multi-entity Billpay","14%","10%","$1.3M","frequent ask"],
+        ["Onboarding Agent","10%","8%","$0.9M","expansion driver"]
+      ] }
+  ];
+
+  var timer=null;
+
+  function cellHTML(val, idx, lastIdx){
+    if(idx===0) return '<td class="c-id">'+val+'</td>';
+    if(idx===lastIdx) return '<td class="c-why">'+val+'</td>';
+    if(val && typeof val==='object' && 'score' in val){
+      return '<td><span class="c-score"><b>.'+val.score+'</b>'+
+             '<span class="qbar"><i data-w="'+val.score+'"></i></span></span></td>';
+    }
+    if(typeof val==='string' && (val.charAt(0)==='$' || val.charAt(val.length-1)==='%'))
+      return '<td class="c-num">'+val+'</td>';
+    return '<td class="c-prod">'+val+'</td>';
+  }
+
+  function render(demo){
+    tagEl.textContent=demo.tag; footEl.textContent=demo.foot;
+    var last=demo.cols.length-1;
+    headEl.innerHTML='<tr>'+demo.cols.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr>';
+    rowsEl.innerHTML=demo.rows.map(function(r){
+      return '<tr>'+r.map(function(v,i){return cellHTML(v,i,last);}).join('')+'</tr>';
+    }).join('');
+  }
+
+  function showRows(stagger){
+    var rs=[].slice.call(rowsEl.querySelectorAll("tr"));
+    rs.forEach(function(row,k){
+      setTimeout(function(){
+        row.classList.add("on");
+        var b=row.querySelector(".qbar i"); if(b) b.style.width=b.getAttribute("data-w")+"%";
+      }, stagger? 150*k : 0);
+    });
+    return rs.length;
+  }
+
+  function typeText(text, done){
+    var i=0; caret.style.display="";
+    (function t(){
+      if(i<=text.length){ typeEl.textContent=text.slice(0,i); i++; timer=setTimeout(t, 30+Math.random()*45); }
+      else { done && done(); }
+    })();
+  }
+
+  function playDemo(i){
+    var demo=DEMOS[i];
+    qbody.classList.remove("is-fading");
+    typeEl.textContent=""; callEl.textContent=""; callEl.classList.remove("on"); caret.style.display="";
+    render(demo);
+    typeText(demo.query, function(){
+      caret.style.display="none";
+      callEl.textContent="❯ "+demo.call; callEl.classList.add("on");
+      timer=setTimeout(function(){
+        var n=showRows(true);
+        timer=setTimeout(function(){ swapTo((i+1)%DEMOS.length); }, 150*n + 5200);
+      }, 750);
+    });
+  }
+
+  function swapTo(i){
+    qbody.classList.add("is-fading");
+    timer=setTimeout(function(){ playDemo(i); }, 450);
+  }
+
+  function staticDemo(){
+    var demo=DEMOS[0]; render(demo);
+    typeEl.textContent=demo.query; caret.style.display="none";
+    callEl.textContent="❯ "+demo.call; callEl.classList.add("on");
+    showRows(false);
+  }
+
+  function initCard(){
+    card.classList.add("is-in");
+    if(reduce){ staticDemo(); return; }
+    setTimeout(function(){ playDemo(0); }, 650);
+  }
+
+  // kick off once after fonts/paint (guard against double-fire)
+  var started=false;
+  function boot(){ if(started) return; started=true; showMasthead(); setTimeout(initCard, 350); }
+  window.addEventListener("load", boot);
+  if (document.readyState === "complete"){ boot(); }
+})();
+</script>
+</body>
+</html>
