@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Wenlong Song — Data Science Leader · GTM · Analytics · AI</title>
+<title>Wenlong Song — Data Science and AI Leader</title>
 <meta name="description" content="Wenlong Song — Head of Mid-Market Data Science at Intuit. I turn go-to-market into a data- and AI-driven growth engine: from the data foundation up to the agent in the seller's workflow." />
 <meta name="author" content="Wenlong Song" />
 
 <!-- Open Graph -->
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Wenlong Song — Data Science Leader · GTM · Analytics · AI" />
+<meta property="og:title" content="Wenlong Song — Data Science and AI Leader" />
 <meta property="og:description" content="Mid-Market GTM data science that became a company's #1 growth engine — built from the data foundation up to the agent in the seller's workflow." />
 
 <!-- Favicon: WS monogram -->
@@ -27,13 +27,15 @@
   --midnight-3:#123E60;
   --cyan:#29B5E8;
   --cyan-soft:#7FD3F2;
+  --clay:#D97757;
+  --clay-2:#C6613F;
   --steel:#11567F;
   --ink:#16222C;
   --slate:#5A6B7B;
   --mist:#C2D6E3;
   --mist-dim:#8AA6BC;
-  --paper:#F4F7FA;
-  --paper-2:#EAF0F6;
+  --paper:#FAF9F5;
+  --paper-2:#F0EEE6;
   --white:#FFFFFF;
 
   --line-dark:rgba(194,214,227,.16);
@@ -78,7 +80,7 @@ a{color:inherit;text-decoration:none;}
   margin:0 0 1.4rem;
 }
 .eyebrow::before{content:"";width:1.6rem;height:1px;background:var(--cyan);opacity:.7;}
-.spread--light .eyebrow{color:var(--steel);}
+.spread--light .eyebrow{color:var(--clay);}
 .spread--light .eyebrow::before{background:var(--steel);}
 
 .s-title{
@@ -249,7 +251,7 @@ a{color:inherit;text-decoration:none;}
   line-height:1.32;letter-spacing:-.01em;color:var(--midnight);margin:0;
 }
 .lede b{font-weight:600;}
-.lede .hl{color:var(--steel);font-style:italic;}
+.lede .hl{color:var(--clay);font-style:italic;}
 .about__body{color:var(--slate);font-size:1.02rem;}
 .about__body p{margin:0 0 1.1rem;}
 .about__body strong{color:var(--ink);font-weight:600;}
@@ -278,17 +280,24 @@ a{color:inherit;text-decoration:none;}
 .kpi__l b{font-weight:700;opacity:1;}
 
 /* ============================================================ TIMELINE == */
-.tl{margin-top:clamp(2.5rem,5vw,3.5rem);}
-.tl__row{
-  display:grid;grid-template-columns:9rem 1fr;gap:clamp(1rem,3vw,3rem);
-  padding:2rem 0;border-top:1px solid var(--line-dark);
-}
-.tl__row:last-child{border-bottom:1px solid var(--line-dark);}
-.tl__when{font-family:var(--mono);font-size:.82rem;letter-spacing:.04em;color:var(--cyan);padding-top:.4rem;}
-.tl__co{font-family:var(--serif);font-size:clamp(1.3rem,2.3vw,1.7rem);font-weight:600;color:var(--white);margin:0;}
-.tl__role{font-family:var(--mono);font-size:.78rem;letter-spacing:.04em;color:var(--mist);margin:.55rem 0 0;text-transform:uppercase;}
-.tl__desc{margin:.9rem 0 0;color:var(--mist);max-width:62ch;}
-.tl__desc b{color:var(--white);font-weight:600;}
+/* Vertical spine grouped by company; each company anchors a clay node, with its roles nested as dated periods. */
+.tl{margin-top:clamp(2.5rem,5vw,3.5rem);position:relative;}
+.tl::before{content:"";position:absolute;left:7px;top:9px;bottom:9px;width:2px;background:var(--clay);opacity:.5;}
+.tl__co{position:relative;padding-left:2.5rem;}
+.tl__co:not(:last-child){border-bottom:1px solid var(--line-dark);padding-bottom:2.1rem;margin-bottom:2.1rem;}
+.tl__co::before{content:"";position:absolute;left:1px;top:9px;width:15px;height:15px;border-radius:50%;
+  background:var(--clay);box-shadow:0 0 0 4px var(--midnight);}
+.tl__head{display:flex;align-items:baseline;gap:.85rem;flex-wrap:wrap;margin-bottom:1.15rem;}
+.tl__name{font-family:var(--serif);font-weight:600;font-size:clamp(1.4rem,2.4vw,1.85rem);
+  color:var(--white);margin:0;letter-spacing:-.01em;}
+.tl__span{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);}
+.tl__periods{display:flex;flex-direction:column;gap:1.1rem;}
+.tl__p{display:grid;grid-template-columns:8.5rem 1fr;gap:1.2rem;}
+.tl__date{font-family:var(--mono);font-size:.8rem;letter-spacing:.02em;color:var(--mist-dim);padding-top:.1rem;white-space:nowrap;}
+.tl__title{font-family:var(--sans);font-weight:600;color:var(--white);margin:0;font-size:1.02rem;line-height:1.4;}
+.tl__sub{font-family:var(--sans);color:var(--mist);margin:.22rem 0 0;font-size:.92rem;line-height:1.5;}
+.tl__note{color:var(--mist);margin:.5rem 0 0;font-size:.9rem;line-height:1.55;max-width:58ch;}
+.tl__note b{color:var(--white);font-weight:600;}
 
 /* ============================================================ WORK ====== */
 .work__intro{max-width:46ch;margin:1.4rem 0 0;color:var(--slate);font-size:1.1rem;}
@@ -346,7 +355,7 @@ a{color:inherit;text-decoration:none;}
 .dia .bar-c{fill:var(--cyan);}
 
 /* ============================================================ EDU ======= */
-.edu__grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,5vw,4.5rem);margin-top:clamp(2rem,4vw,3rem);}
+.edu__grid{display:grid;grid-template-columns:1fr;gap:clamp(2rem,5vw,4.5rem);margin-top:clamp(2rem,4vw,3rem);}
 .minihead{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);margin:0 0 1.5rem;}
 .item{padding:1.1rem 0;border-top:1px solid var(--line-dark);}
 .item:first-of-type{border-top:0;}
@@ -357,6 +366,13 @@ a{color:inherit;text-decoration:none;}
   display:flex;gap:.8rem;align-items:baseline;}
 .awards li:first-child{border-top:0;}
 .awards li::before{content:"◆";color:var(--cyan);font-size:.7rem;}
+/* Education now sits on a light (ivory) section — remap its text/hairlines for contrast */
+#edu .minihead{color:var(--clay);}
+#edu .item{border-top-color:var(--line-light);}
+#edu .item__t{color:var(--ink);}
+#edu .item__s{color:var(--slate);}
+#edu .awards li{color:var(--slate);border-top-color:var(--line-light);}
+#edu .awards li::before{color:var(--clay);}
 
 /* ============================================================ CONTACT === */
 .contact{
@@ -399,8 +415,8 @@ a{color:inherit;text-decoration:none;}
   .hero__grid{gap:2.5rem;}
   .feature__media,.feature--flip .feature__media,.feature--flip .feature__text{order:0;}
   .feature__media{margin-top:.5rem;}
-  .tl__row{grid-template-columns:1fr;gap:.5rem;}
-  .tl__when{padding-top:0;}
+  .tl__p{grid-template-columns:1fr;gap:.2rem;}
+  .tl__co{padding-left:1.9rem;}
   .nav__links{display:none;}
   .block{grid-template-columns:1fr;gap:.3rem;}
   .block__k{border-left:0;border-top:2px solid var(--cyan);padding-left:0;padding-top:.5rem;}
@@ -423,10 +439,11 @@ a{color:inherit;text-decoration:none;}
   </a>
   <nav aria-label="Sections">
     <ul class="nav__links">
-      <li><a href="#about">About me</a></li>
-      <li><a href="#career">My journey</a></li>
-      <li><a href="#work">Selected work</a></li>
-      <li><a href="#contact">Contact me</a></li>
+      <li><a href="#about">Intro</a></li>
+      <li><a href="#work">Highlights</a></li>
+      <li><a href="#career">Career</a></li>
+      <li><a href="#edu">Education</a></li>
+      <li><a href="#contact">Contact</a></li>
     </ul>
   </nav>
 </header>
@@ -558,53 +575,6 @@ a{color:inherit;text-decoration:none;}
   </div>
 </section>
 
-<!-- ============================================================= CAREER -->
-<section class="spread spread--dark" id="career">
-  <div class="wrap">
-    <div class="reveal">
-      <p class="eyebrow">Career</p>
-      <h2 class="s-title">Fourteen years turning data into growth.</h2>
-    </div>
-    <div class="tl">
-      <div class="tl__row reveal">
-        <div class="tl__when">2022&mdash;Now</div>
-        <div>
-          <h3 class="tl__co">Intuit</h3>
-          <p class="tl__role">Head of Mid-Market Data Science · San Jose, CA</p>
-          <p class="tl__desc">
-            Own GTM data science strategy across Marketing, Sales, and Product. <b>Scaled the team
-            from 3 to 25</b> and lead a broader org of <b>50+</b> data scientists. Mid-Market is
-            Intuit's <b>#1 revenue-growth driver</b>, and I act as a trusted advisor to its most
-            senior GTM leadership.
-          </p>
-        </div>
-      </div>
-      <div class="tl__row reveal">
-        <div class="tl__when">2013&mdash;2022</div>
-        <div>
-          <h3 class="tl__co">eBay</h3>
-          <p class="tl__role">Senior Data Science Manager — Head of Buyer Product Analytics · San Jose, CA</p>
-          <p class="tl__desc">
-            Built and led a global team of <b>12+</b> across Search, Buyer Experience, Messaging,
-            and Selling. Owned product measurement, health monitoring, and <b>A/B experimentation
-            at scale</b>. Earned 4 promotions and a Critical Talent Award (top &lt;1%).
-          </p>
-        </div>
-      </div>
-      <div class="tl__row reveal">
-        <div class="tl__when">2012&mdash;2013</div>
-        <div>
-          <h3 class="tl__co">Rapp Collins</h3>
-          <p class="tl__role">Data Analyst · Singapore</p>
-          <p class="tl__desc">
-            Delivered consulting analytics for major retail, F&amp;B, and telecom brands; automated
-            recurring reporting and strengthened in-house data-quality and analytics capability.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- =============================================================== WORK -->
 <section class="spread spread--light" id="work">
@@ -851,12 +821,97 @@ a{color:inherit;text-decoration:none;}
   </div>
 </section>
 
+<!-- ============================================================= CAREER -->
+<section class="spread spread--dark" id="career">
+  <div class="wrap">
+    <div class="reveal">
+      <p class="eyebrow">Career</p>
+      <h2 class="s-title">Fourteen years turning data into growth.</h2>
+    </div>
+    <div class="tl">
+
+      <!-- Intuit -->
+      <div class="tl__co reveal">
+        <div class="tl__head">
+          <h3 class="tl__name">Intuit</h3>
+          <span class="tl__span">2022 — Now · Mountain View, CA</span>
+        </div>
+        <div class="tl__periods">
+          <div class="tl__p">
+            <span class="tl__date">2024 — Now</span>
+            <div>
+              <p class="tl__title">Head of Mid-Market Data Science</p>
+              <p class="tl__sub">Marketing, Sales &amp; Product</p>
+            </div>
+          </div>
+          <div class="tl__p">
+            <span class="tl__date">2022 — 2024</span>
+            <div>
+              <p class="tl__title">Group Manager, Data Science</p>
+              <p class="tl__sub">Mid-Market Marketing &amp; Sales</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- eBay -->
+      <div class="tl__co reveal">
+        <div class="tl__head">
+          <h3 class="tl__name">eBay</h3>
+          <span class="tl__span">2013 — 2022</span>
+        </div>
+        <div class="tl__periods">
+          <div class="tl__p">
+            <span class="tl__date">2020 — 2022</span>
+            <div>
+              <p class="tl__title">Senior Data Science Manager, Product Analytics</p>
+              <p class="tl__sub">Focused Verticals · San Jose, CA</p>
+            </div>
+          </div>
+          <div class="tl__p">
+            <span class="tl__date">2015 — 2020</span>
+            <div>
+              <p class="tl__title">Data Science Manager, Product Analytics</p>
+              <p class="tl__sub">Consumer Selling &amp; Search Experience · San Jose, CA</p>
+            </div>
+          </div>
+          <div class="tl__p">
+            <span class="tl__date">2013 — 2015</span>
+            <div>
+              <p class="tl__title">Senior Business Data Analyst</p>
+              <p class="tl__sub">Mobile Marketing · Shanghai</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rapp Collins -->
+      <div class="tl__co reveal">
+        <div class="tl__head">
+          <h3 class="tl__name">Rapp Collins</h3>
+          <span class="tl__span">2012 — 2013</span>
+        </div>
+        <div class="tl__periods">
+          <div class="tl__p">
+            <span class="tl__date">2012 — 2013</span>
+            <div>
+              <p class="tl__title">Data Analyst</p>
+              <p class="tl__sub">Singapore</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- ===================================================== EDU + RECOGNITION -->
-<section class="spread spread--dark" id="edu">
+<section class="spread spread--light" id="edu">
   <div class="wrap">
     <div class="reveal">
       <p class="eyebrow">Foundations</p>
-      <h2 class="s-title">Education &amp; recognition.</h2>
+      <h2 class="s-title">Education.</h2>
     </div>
     <div class="edu__grid">
       <div class="reveal">
@@ -869,14 +924,6 @@ a{color:inherit;text-decoration:none;}
           <h3 class="item__t">B.S., Biotechnology</h3>
           <p class="item__s">East China University of Science &amp; Technology</p>
         </div>
-      </div>
-      <div class="reveal d1">
-        <p class="minihead">Recognition</p>
-        <ul class="awards">
-          <li>Critical Talent Award — top &lt;1% of talent</li>
-          <li>4 promotions across analytics and data science leadership</li>
-          <li>Multiple Spot Awards for high-impact delivery</li>
-        </ul>
       </div>
     </div>
   </div>
@@ -908,8 +955,7 @@ a{color:inherit;text-decoration:none;}
       </a>
     </div>
     <div class="footer">
-      <span>Wenlong Song — Data Science Leader</span>
-      <span>GTM · Analytics · AI</span>
+      <span id="lastmod"></span>
     </div>
   </div>
 </section>
@@ -1057,6 +1103,14 @@ a{color:inherit;text-decoration:none;}
     card.classList.add("is-in");
     if(reduce){ staticDemo(); return; }
     setTimeout(function(){ playDemo(0); }, 650);
+  }
+
+  /* ---- footer last-modified (auto-updates on every file change / Pages deploy) ---- */
+  var lm = document.getElementById("lastmod");
+  if (lm){
+    var d = new Date(document.lastModified);
+    if (isNaN(d.getTime())) d = new Date();
+    lm.textContent = "Last updated " + d.toLocaleDateString("en-US", {year:"numeric", month:"long", day:"numeric"});
   }
 
   // kick off once after fonts/paint (guard against double-fire)
