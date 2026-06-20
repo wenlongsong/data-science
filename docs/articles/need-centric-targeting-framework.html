@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Need-Centric Targeting Framework — Wenlong Song</title>
+<meta name="description" content="Most B2B targeting rests on firmographics, intent, and engagement — signals that correlate with buying but don't cause it. A need-centric framework reverse-engineers a product's value into causal signals to drive upsell and cross-sell across the install base." />
+<meta name="author" content="Wenlong Song" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Stop targeting who looks likely. Start targeting what customers need." />
+<meta property="og:description" content="A need-centric targeting framework that reverse-engineers product value into causal buying signals — and the upsell/cross-sell it unlocks across an existing B2B install base." />
+
+<!-- Favicon: WS monogram (same as site) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B2942'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='20' font-weight='700' fill='%2329B5E8' text-anchor='middle'%3E%E2%88%9E%3C/text%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================================================ TOKENS == */
+/* Inherited verbatim from the personal-site design system. */
+:root{
+  --midnight:#0B2942;
+  --midnight-2:#0E3350;
+  --midnight-3:#123E60;
+  --cyan:#29B5E8;
+  --cyan-soft:#7FD3F2;
+  --clay:#D97757;
+  --clay-2:#C6613F;
+  --steel:#11567F;
+  --ink:#16222C;
+  --slate:#5A6B7B;
+  --mist:#C2D6E3;
+  --mist-dim:#8AA6BC;
+  --paper:#FAF9F5;
+  --paper-2:#F0EEE6;
+  --white:#FFFFFF;
+
+  --line-dark:rgba(194,214,227,.16);
+  --line-light:rgba(11,41,66,.12);
+
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Code",Consolas,monospace;
+
+  --wrap:1180px;
+  --read:720px;
+  --gutter:clamp(1.25rem,5vw,4.5rem);
+  --pad-y:clamp(4.5rem,9vw,8rem);
+  --radius:14px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+
+/* ============================================================ RESET ===== */
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:1.0625rem;line-height:1.65;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+img,svg{display:block;max-width:100%;}
+a{color:inherit;text-decoration:none;}
+::selection{background:var(--cyan);color:var(--midnight);}
+:focus-visible{outline:2.5px solid var(--cyan);outline-offset:3px;border-radius:3px;}
+
+/* ============================================================ LAYOUT ==== */
+.spread{position:relative;padding:var(--pad-y) var(--gutter);overflow:hidden;}
+.spread--dark{background:var(--midnight);color:var(--mist);}
+.spread--light{background:var(--paper);color:var(--ink);}
+.wrap{max-width:var(--wrap);margin-inline:auto;position:relative;z-index:2;}
+
+.eyebrow{
+  font-family:var(--mono);font-size:.74rem;font-weight:500;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--cyan);display:inline-flex;align-items:center;gap:.6rem;
+  margin:0 0 1.4rem;
+}
+.eyebrow::before{content:"";width:1.6rem;height:1px;background:var(--cyan);opacity:.7;}
+.spread--light .eyebrow{color:var(--clay);}
+.spread--light .eyebrow::before{background:var(--steel);}
+
+/* ============================================================ PROGRESS = */
+.progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:200;
+  background:linear-gradient(90deg,var(--steel),var(--cyan));box-shadow:0 0 12px rgba(41,181,232,.6);
+  transition:width .1s linear;}
+
+/* ============================================================ NAV ======= */
+.nav{
+  position:fixed;inset:0 0 auto 0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.05rem var(--gutter);
+  transition:padding .35s var(--ease),background .35s var(--ease),
+             border-color .35s var(--ease),backdrop-filter .35s var(--ease);
+  border-bottom:1px solid transparent;
+}
+.nav.is-scrolled{
+  padding:.6rem var(--gutter);
+  background:rgba(8,30,49,.82);backdrop-filter:blur(14px) saturate(140%);
+  border-bottom:1px solid var(--line-dark);
+}
+.nav__mark{
+  font-family:var(--serif);font-weight:700;font-size:1.18rem;letter-spacing:.02em;
+  color:var(--white);display:inline-flex;align-items:center;gap:.55rem;
+}
+.nav__mark b{color:var(--cyan);font-size:1.5em;line-height:1;position:relative;top:.04em;}
+.nav__links{display:flex;gap:1.55rem;list-style:none;margin:0;padding:0;align-items:center;}
+.nav__links a{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mist);position:relative;padding:.3rem 0;transition:color .25s;
+}
+.nav__links a::after{
+  content:"";position:absolute;left:0;bottom:-2px;width:0;height:1.5px;background:var(--cyan);
+  transition:width .3s var(--ease);
+}
+.nav__links a:hover{color:var(--white);}
+.nav__links a:hover::after{width:100%;}
+.nav__links a.back{
+  border:1px solid var(--line-dark);border-radius:999px;padding:.4rem .9rem;color:var(--cyan-soft);
+}
+.nav__links a.back::after{display:none;}
+.nav__links a.back:hover{border-color:var(--cyan);color:var(--white);}
+
+/* All-Articles dropdown */
+.nav__dd-wrap{position:relative;}
+.nav__dd-toggle{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mist);background:none;border:0;cursor:pointer;padding:.3rem 0;
+  display:inline-flex;align-items:center;gap:.5rem;transition:color .25s;
+}
+.nav__dd-toggle:hover,.nav__dd-wrap.is-open .nav__dd-toggle{color:var(--white);}
+.nav__dd-toggle .caret{width:.46rem;height:.46rem;border-right:1.6px solid currentColor;
+  border-bottom:1.6px solid currentColor;transform:rotate(45deg);margin-top:-.18rem;transition:transform .3s var(--ease);}
+.nav__dd-wrap.is-open .nav__dd-toggle .caret{transform:rotate(-135deg);margin-top:.1rem;}
+.nav__dd{
+  position:absolute;top:calc(100% + .7rem);right:0;min-width:250px;max-width:min(330px,82vw);
+  list-style:none;margin:0;padding:.5rem;
+  background:rgba(8,30,49,.97);backdrop-filter:blur(14px) saturate(140%);
+  border:1px solid var(--line-dark);border-radius:12px;box-shadow:0 26px 60px -24px rgba(0,0,0,.7);
+  opacity:0;visibility:hidden;transform:translateY(-8px);
+  transition:opacity .25s var(--ease),transform .25s var(--ease),visibility .25s;
+}
+.nav__dd-wrap.is-open .nav__dd{opacity:1;visibility:visible;transform:none;}
+.nav__dd li{margin:0;}
+.nav__dd a{
+  display:flex;align-items:baseline;gap:.55rem;padding:.6rem .7rem;border-radius:8px;
+  font-family:var(--sans);font-size:.88rem;font-weight:500;letter-spacing:0;text-transform:none;
+  color:var(--mist);line-height:1.35;transition:background .2s,color .2s;
+}
+.nav__dd a::after{display:none;}
+.nav__dd a:hover{background:rgba(41,181,232,.1);color:var(--white);}
+.nav__dd a .dd-n{font-family:var(--mono);font-size:.62rem;font-weight:500;color:var(--mist-dim);flex:none;position:relative;top:-.05em;}
+.nav__dd .is-current{color:var(--cyan-soft);background:rgba(41,181,232,.08);}
+.nav__dd .is-current .dd-n{color:var(--cyan);}
+.nav__dd .is-current:hover{background:rgba(41,181,232,.08);color:var(--cyan-soft);}
+
+/* Right section-nav rail (scrollspy) */
+.rail{
+  position:fixed;top:50%;right:clamp(.9rem,2.2vw,2rem);transform:translateY(-50%);z-index:80;
+  opacity:0;pointer-events:none;transition:opacity .4s var(--ease);
+}
+.rail.is-on{opacity:1;pointer-events:auto;}
+.rail ul{list-style:none;margin:0;padding:0;position:relative;display:flex;flex-direction:column;gap:.12rem;}
+.rail ul::before{content:"";position:absolute;top:.6rem;bottom:.6rem;right:3px;width:1.5px;background:var(--line-light);}
+.rail a{
+  display:flex;align-items:center;justify-content:flex-end;gap:.65rem;padding:.3rem 0;
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--slate);opacity:.5;transition:color .25s,opacity .25s;
+}
+.rail a:hover{opacity:1;color:var(--ink);}
+.rail a.is-active{opacity:1;color:var(--clay);font-weight:500;}
+.rail__dot{width:7px;height:7px;border-radius:50%;border:1.5px solid var(--mist-dim);background:var(--paper);
+  flex:none;position:relative;z-index:1;transition:background .25s,border-color .25s,transform .25s;}
+.rail a:hover .rail__dot{border-color:var(--slate);}
+.rail a.is-active .rail__dot{background:var(--clay);border-color:var(--clay);transform:scale(1.2);box-shadow:0 0 0 3px var(--paper);}
+@media (max-width:1180px){ .rail{display:none;} }
+
+/* ============================================================ HERO ====== */
+.hero{
+  min-height:88svh;display:flex;align-items:flex-end;
+  padding-top:8rem;padding-bottom:clamp(3rem,6vw,5rem);
+  background:
+    radial-gradient(120% 90% at 88% 0%,rgba(41,181,232,.13),transparent 55%),
+    radial-gradient(90% 70% at 0% 100%,rgba(17,86,127,.30),transparent 60%),
+    var(--midnight);
+}
+.lattice{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5;}
+.lattice svg{position:absolute;width:min(620px,55vw);height:auto;}
+.lattice .l-tr{top:-8%;right:-7%;opacity:.5;}
+.hero__wrap{max-width:980px;}
+.kicker{
+  font-family:var(--mono);font-size:.78rem;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--cyan);margin:0 0 1.6rem;display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;
+}
+.kicker .tagpill{border:1px solid var(--line-dark);border-radius:999px;padding:.2rem .7rem;color:var(--mist-dim);letter-spacing:.14em;}
+.art-title{
+  font-family:var(--serif);font-weight:600;color:var(--white);
+  font-size:clamp(2.3rem,5.6vw,4.1rem);line-height:1.02;letter-spacing:-.022em;margin:0;
+}
+.art-title em{font-style:italic;font-weight:400;color:var(--cyan-soft);}
+.art-dek{
+  margin:1.7rem 0 0;max-width:60ch;color:var(--mist);
+  font-size:clamp(1.1rem,1.7vw,1.34rem);line-height:1.5;
+}
+.byline{
+  margin:2.4rem 0 0;display:flex;flex-wrap:wrap;gap:.5rem 1.1rem;align-items:center;
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mist-dim);
+}
+.byline b{color:var(--mist);font-weight:500;}
+.byline .sep{width:5px;height:5px;border-radius:50%;background:var(--cyan);opacity:.7;}
+
+/* ============================================================ ARTICLE === */
+.article{background:var(--paper);}
+.prose{max-width:var(--read);margin-inline:auto;}
+.prose > p{margin:0 0 1.35rem;color:var(--ink);font-size:1.135rem;line-height:1.72;}
+.prose > p.lead{
+  font-family:var(--serif);font-weight:400;font-size:clamp(1.35rem,2.4vw,1.7rem);
+  line-height:1.42;letter-spacing:-.01em;color:var(--midnight);margin-bottom:1.6rem;
+}
+.prose a.ref{color:var(--steel);border-bottom:1px solid rgba(17,86,127,.35);font-weight:500;}
+.prose a.ref:hover{color:var(--cyan-soft);background:rgba(41,181,232,.08);}
+.prose strong{font-weight:600;color:var(--midnight);}
+.prose em{font-style:italic;}
+
+.h-sec{
+  font-family:var(--mono);font-size:.72rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--clay);display:flex;align-items:center;gap:.6rem;margin:0 0 .9rem;
+}
+.h-sec::before{content:"";width:1.5rem;height:1px;background:var(--steel);opacity:.8;}
+.prose h2{
+  font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,3.3vw,2.4rem);
+  line-height:1.08;letter-spacing:-.018em;color:var(--midnight);margin:0 0 1rem;scroll-margin-top:6rem;
+}
+.prose h3{
+  font-family:var(--sans);font-weight:600;font-size:1.18rem;line-height:1.35;
+  color:var(--ink);margin:2.2rem 0 .6rem;
+}
+.sec{padding:clamp(2.6rem,5vw,4rem) 0 0;scroll-margin-top:5.5rem;}
+.sec--first{padding-top:0;}
+
+.prose ul,.prose ol{margin:0 0 1.4rem;padding-left:0;list-style:none;}
+.prose ul li{position:relative;padding-left:1.6rem;margin:0 0 .65rem;color:var(--ink);line-height:1.6;}
+.prose ul li::before{content:"";position:absolute;left:.1rem;top:.62em;width:.5rem;height:.5rem;
+  border-radius:1px;background:var(--cyan);transform:rotate(45deg);}
+.prose ol{counter-reset:li;}
+.prose ol li{position:relative;padding-left:2.2rem;margin:0 0 .8rem;color:var(--ink);line-height:1.6;counter-increment:li;}
+.prose ol li::before{content:counter(li);position:absolute;left:0;top:.05em;
+  font-family:var(--mono);font-size:.78rem;font-weight:700;color:var(--steel);
+  width:1.5rem;height:1.5rem;border:1.5px solid var(--steel);border-radius:50%;
+  display:grid;place-items:center;}
+.prose li b{color:var(--midnight);font-weight:600;}
+
+blockquote{
+  margin:2rem 0;padding:.2rem 0 .2rem 1.6rem;border-left:3px solid var(--clay);
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:clamp(1.3rem,2.3vw,1.62rem);line-height:1.4;color:var(--midnight);letter-spacing:-.01em;
+}
+
+/* ---- "What you'll learn" TLDR card ---- */
+.tldr{
+  margin:2.4rem 0 .5rem;background:var(--white);border:1px solid var(--line-light);
+  border-radius:var(--radius);padding:clamp(1.4rem,2.4vw,2rem);
+  box-shadow:0 18px 44px -30px rgba(11,41,66,.45);
+}
+.tldr__h{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--steel);margin:0 0 1.1rem;display:flex;align-items:center;gap:.6rem;}
+.tldr__h::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px 1px rgba(41,181,232,.6);}
+.tldr ul{margin:0;}
+.tldr ul li{margin-bottom:.8rem;font-size:1.04rem;}
+.tldr ul li:last-child{margin-bottom:0;}
+
+/* ---- figures (reuse .schematic + .dia) ---- */
+.fig{margin:2.4rem 0;max-width:960px;margin-inline:auto;}
+.schematic{
+  background:linear-gradient(165deg,var(--midnight),#0a2540);border-radius:var(--radius);
+  border:1px solid rgba(11,41,66,.18);padding:clamp(1.5rem,3vw,2.4rem);
+  box-shadow:0 24px 50px -28px rgba(11,41,66,.5);
+}
+.schematic svg{width:100%;height:auto;}
+.fig figcaption{
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--slate);margin-top:1rem;text-align:center;line-height:1.6;
+}
+.fig figcaption b{color:var(--clay);font-weight:500;}
+/* svg shared styling (from site) + article extensions */
+.dia{font-family:var(--mono);}
+.dia .stroke{stroke:var(--mist);stroke-width:1.4;fill:none;opacity:.5;}
+.dia .stroke-c{stroke:var(--cyan);stroke-width:1.7;fill:none;}
+.dia .weak{stroke:var(--mist-dim);stroke-width:1.5;fill:none;stroke-dasharray:5 5;opacity:.65;}
+.dia .node{fill:var(--midnight-2);stroke:var(--mist);stroke-width:1.3;opacity:.92;}
+.dia .node-c{fill:rgba(41,181,232,.16);stroke:var(--cyan);stroke-width:1.7;}
+.dia .node-k{fill:rgba(217,119,87,.16);stroke:var(--clay);stroke-width:1.6;}
+.dia .txt{fill:var(--mist);font-size:12px;letter-spacing:.02em;}
+.dia .txt-c{fill:var(--cyan-soft);font-size:12px;letter-spacing:.02em;}
+.dia .txt-k{fill:#F0B49B;font-size:12px;letter-spacing:.02em;}
+.dia .lbl{fill:var(--mist-dim);font-size:9.5px;letter-spacing:.03em;}
+.dia .lbl-c{fill:var(--cyan-soft);font-size:9.5px;letter-spacing:.03em;}
+.dia .ttl{fill:var(--white);font-size:12.5px;font-weight:700;letter-spacing:.04em;}
+.dia .bar{fill:rgba(194,214,227,.16);}
+.dia .bar-c{fill:var(--cyan);}
+.dia .bar-m{fill:var(--mist-dim);opacity:.55;}
+
+/* ---- worked-example callout ---- */
+.vsn{
+  margin:2rem 0;background:var(--white);border:1px solid var(--line-light);border-radius:var(--radius);
+  overflow:hidden;box-shadow:0 18px 44px -30px rgba(11,41,66,.4);
+}
+.vsn__h{display:flex;align-items:center;gap:.6rem;background:var(--midnight);color:var(--mist);
+  padding:.75rem 1.2rem;font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;}
+.vsn__h b{color:var(--cyan);font-weight:500;}
+.vsn__row{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:.5rem;
+  padding:1.3rem 1.2rem;}
+.vsn__cell{min-width:0;}
+.vsn__k{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--steel);margin:0 0 .35rem;}
+.vsn__v{margin:0;font-size:.98rem;line-height:1.4;color:var(--ink);}
+.vsn__v b{color:var(--midnight);font-weight:600;}
+.vsn__arr{color:var(--cyan);font-size:1.2rem;font-weight:700;text-align:center;}
+.vsn__note{padding:.2rem 1.2rem 1.1rem;font-size:.86rem;color:var(--slate);font-style:italic;}
+
+/* ---- value->signal mini table ---- */
+.vtbl{margin:1.8rem 0;border:1px solid var(--line-light);border-radius:12px;overflow:hidden;background:var(--white);}
+.vtbl table{width:100%;border-collapse:collapse;font-size:.92rem;}
+.vtbl th{background:var(--paper-2);text-align:left;font-family:var(--mono);font-size:.6rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--steel);padding:.7rem .9rem;font-weight:600;}
+.vtbl td{padding:.7rem .9rem;border-top:1px solid var(--line-light);vertical-align:top;line-height:1.45;color:var(--ink);}
+.vtbl td b{color:var(--midnight);font-weight:600;}
+.vtbl .need{font-family:var(--mono);font-size:.74rem;color:var(--clay-2);}
+
+/* ---- maturity comparison table ---- */
+.cmp{margin:2.2rem 0;overflow-x:auto;border-radius:12px;border:1px solid var(--line-light);}
+.cmp table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:560px;background:var(--white);}
+.cmp thead th{text-align:left;padding:.95rem .95rem;font-family:var(--sans);font-weight:600;font-size:.92rem;
+  color:#fff;vertical-align:bottom;line-height:1.3;}
+.cmp thead th:nth-child(1){background:var(--ink);font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;font-weight:500;}
+.cmp thead th:nth-child(2){background:var(--slate);}
+.cmp thead th:nth-child(3){background:var(--steel);}
+.cmp thead th:nth-child(4){background:var(--cyan);color:#08243B;}
+.cmp tbody th{text-align:left;font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--steel);font-weight:600;padding:.8rem .95rem;background:var(--paper-2);vertical-align:top;width:18%;}
+.cmp tbody td{padding:.8rem .95rem;border-top:1px solid var(--line-light);vertical-align:top;line-height:1.45;color:var(--ink);}
+.cmp tbody td:last-child{background:rgba(41,181,232,.07);font-weight:500;}
+.cmp tbody td b{color:var(--midnight);}
+
+/* ---- adoption steps ---- */
+.steps{margin:1.8rem 0;display:grid;gap:1rem;}
+.step{display:grid;grid-template-columns:auto 1fr;gap:1.1rem;align-items:start;
+  background:var(--white);border:1px solid var(--line-light);border-radius:12px;padding:1.1rem 1.3rem;}
+.step__n{font-family:var(--serif);font-weight:600;font-size:1.5rem;color:var(--cyan);line-height:1;
+  width:2.4rem;height:2.4rem;display:grid;place-items:center;border:1.5px solid var(--cyan);border-radius:10px;background:rgba(41,181,232,.06);}
+.step__b{margin:0;font-size:1rem;line-height:1.55;color:var(--ink);}
+.step__b b{color:var(--midnight);font-weight:600;}
+
+/* ============================================================ AUTHOR === */
+.author{background:
+    radial-gradient(80% 120% at 100% 0%,rgba(41,181,232,.14),transparent 55%),
+    var(--midnight);}
+.author__wrap{max-width:var(--read);margin-inline:auto;}
+.author__card{display:flex;gap:1.4rem;align-items:flex-start;flex-wrap:wrap;}
+.author__mono{width:62px;height:62px;border-radius:14px;background:var(--midnight-2);border:1px solid var(--line-dark);
+  display:grid;place-items:center;font-family:var(--serif);font-weight:700;color:var(--cyan);font-size:1.5rem;flex:none;}
+.author__name{font-family:var(--serif);font-weight:600;color:var(--white);font-size:1.4rem;margin:0;}
+.author__role{font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;color:var(--cyan);margin:.35rem 0 0;text-transform:uppercase;}
+.author__bio{color:var(--mist);font-size:1rem;line-height:1.6;margin:1rem 0 0;max-width:58ch;}
+.author__links{margin:1.6rem 0 0;display:flex;flex-wrap:wrap;gap:.8rem 1rem;}
+.clink{display:inline-flex;align-items:center;gap:.6rem;border:1px solid var(--line-dark);border-radius:999px;
+  padding:.65rem 1.2rem;font-family:var(--mono);font-size:.78rem;letter-spacing:.04em;color:var(--mist);
+  transition:border-color .3s,color .3s,background .3s,transform .3s var(--ease);}
+.clink:hover{border-color:var(--cyan);color:var(--white);background:rgba(41,181,232,.08);transform:translateY(-2px);}
+.clink svg{width:15px;height:15px;stroke:var(--cyan);fill:none;stroke-width:1.6;}
+
+/* ---- sources / footnotes ---- */
+.sources{max-width:var(--read);margin-inline:auto;margin-top:2.6rem;padding-top:1.6rem;border-top:1px solid var(--line-dark);}
+.disclaimer{max-width:var(--read);margin:1.6rem auto 0;font-family:var(--mono);font-size:.7rem;
+  letter-spacing:.04em;color:var(--mist-dim);line-height:1.7;}
+
+.footer{
+  max-width:var(--wrap);margin:clamp(3rem,6vw,5rem) auto 0;padding-top:1.6rem;border-top:1px solid var(--line-dark);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mist-dim);
+}
+.footer a{color:var(--cyan-soft);}
+
+/* ============================================================ REVEAL ==== */
+.reveal{opacity:0;transform:translateY(26px);}
+.reveal.is-in{opacity:1;transform:none;transition:opacity .8s var(--ease),transform .8s var(--ease);}
+
+/* ============================================================ RESPONSIVE = */
+@media (max-width:680px){
+  .nav__links{gap:.9rem;}
+  .vsn__row{grid-template-columns:1fr;gap:.2rem;}
+  .vsn__arr{transform:rotate(90deg);padding:.2rem 0;}
+  .byline{gap:.4rem .8rem;}
+}
+
+/* ============================================================ A11Y ====== */
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important;scroll-behavior:auto !important;}
+  .reveal{opacity:1 !important;transform:none !important;}
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<!-- shared arrowheads for all diagrams -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ahC" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#29B5E8"/></marker>
+  <marker id="ahM" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8AA6BC"/></marker>
+  <marker id="ahK" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#D97757"/></marker>
+</defs></svg>
+
+<!-- ================================================================ NAV -->
+<header class="nav" id="nav">
+  <a class="nav__mark" href="https://wenlongsong.github.io/data-science/introduction.html" aria-label="Wenlong Song — home">
+    Data + AI = <b>&#8734;</b>
+  </a>
+  <nav aria-label="Article navigation">
+    <ul class="nav__links">
+      <li class="nav__dd-wrap">
+        <button class="nav__dd-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+          All Articles <span class="caret" aria-hidden="true"></span>
+        </button>
+        <ul class="nav__dd" role="menu" aria-label="All articles">
+          <li><a class="is-current" href="#top" aria-current="page" role="menuitem"><span class="dd-n">01</span> The Need-Centric Targeting Framework</a></li>
+          <li><a href="#" role="menuitem"><span class="dd-n">02</span> Account Scoring in the Seller&rsquo;s Workflow</a></li>
+          <li><a href="#" role="menuitem"><span class="dd-n">03</span> From Voice-of-Customer to a Product Roadmap</a></li>
+          <li><a href="#" role="menuitem"><span class="dd-n">04</span> Re-platforming a Data-Science Org Around Agents</a></li>
+          <li><a href="#" role="menuitem"><span class="dd-n">05</span> One Funnel, Causal Answers: Measuring GTM</a></li>
+        </ul>
+      </li>
+      <li class="nav__back"><a class="back" href="https://wenlongsong.github.io/data-science/introduction.html">&larr; Back to Home</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- right section-nav rail (scrollspy) -->
+<nav class="rail" id="rail" aria-label="On this page">
+  <ul>
+    <li><a href="#s-icp"><span class="rail__t">The ICP</span><span class="rail__dot"></span></a></li>
+    <li><a href="#problem"><span class="rail__t">The Problem</span><span class="rail__dot"></span></a></li>
+    <li><a href="#framework"><span class="rail__t">The Framework</span><span class="rail__dot"></span></a></li>
+    <li><a href="#s-origin"><span class="rail__t">Origin</span><span class="rail__dot"></span></a></li>
+    <li><a href="#s-mechanism"><span class="rail__t">The Mechanism</span><span class="rail__dot"></span></a></li>
+    <li><a href="#proof"><span class="rail__t">The Proof</span><span class="rail__dot"></span></a></li>
+    <li><a href="#playbook"><span class="rail__t">The Payoff</span><span class="rail__dot"></span></a></li>
+    <li><a href="#s-start"><span class="rail__t">Where to Start</span><span class="rail__dot"></span></a></li>
+  </ul>
+</nav>
+
+<main id="top">
+
+<!-- =============================================================== HERO -->
+<article>
+<section class="spread spread--dark hero">
+  <div class="lattice" aria-hidden="true">
+    <svg class="l-tr" viewBox="0 0 200 200" fill="none">
+      <g stroke="#29B5E8" stroke-width="1" opacity=".5">
+        <path d="M100 10 L160 45 L160 115 L100 150 L40 115 L40 45 Z"/>
+        <path d="M100 10 L100 150 M40 45 L160 115 M160 45 L40 115"/>
+        <circle cx="100" cy="80" r="46"/>
+      </g>
+    </svg>
+  </div>
+  <div class="wrap hero__wrap">
+    <p class="kicker">Go-to-Market &middot; Data Science <span class="tagpill">B2B Software</span> <span class="tagpill">Upsell &amp; Cross-sell</span></p>
+    <h1 class="art-title">Stop targeting who <em>looks</em> likely.<br>Start targeting what customers <em>need</em>.</h1>
+    <p class="art-dek">
+      Most B2B targeting rests on firmographics, intent, and engagement &mdash; signals that
+      <b style="color:var(--white)">correlate</b> with buying but don&rsquo;t <b style="color:var(--white)">cause</b> it.
+      Here&rsquo;s a Need-Centric Targeting Framework that reverse-engineers a product&rsquo;s value into
+      causal buying signals &mdash; and the expansion it unlocks across an existing install base.
+    </p>
+    <div class="byline">
+      <span><b>Wenlong Song</b></span><span class="sep"></span>
+      <span>Head of Mid-Market Data Science, Intuit</span><span class="sep"></span>
+      <span>June 2026</span><span class="sep"></span>
+      <span>~12 min read</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ BODY ==== -->
+<section class="spread spread--light article">
+  <div class="prose">
+
+    <!-- intro + TLDR -->
+    <div class="sec sec--first reveal">
+      <p class="lead">
+        Every dollar of net-new logo growth is hard-won. But for most B2B software companies, the
+        fastest, highest-margin growth is already sitting inside the house &mdash; in the customers you
+        already won. The question is no longer <em>&ldquo;who should we acquire?&rdquo;</em> It&rsquo;s
+        <em>&ldquo;which of our existing customers is ready for more, and why?&rdquo;</em>
+      </p>
+      <p>
+        The honest answer is that the industry&rsquo;s standard targeting playbook is surprisingly bad at
+        the second question. It is built to find accounts that <em>resemble</em> buyers, not accounts that
+        <em>need</em> what we sell next. That gap is exactly where I&rsquo;ve spent the last few years &mdash;
+        and the framework below is what came out of it.
+      </p>
+
+      <div class="tldr">
+        <p class="tldr__h">Here&rsquo;s what you&rsquo;ll learn</p>
+        <ul>
+          <li>Why the standard targeting stack &mdash; <b>firmographics + intent + engagement</b> &mdash; has a built-in win-rate ceiling, and why it&rsquo;s still worth running.</li>
+          <li>How a <b>Need-Centric Targeting Framework (NTF)</b> reverse-engineers a product&rsquo;s differentiated value into signals with a real <em>causal</em> link to the buying decision.</li>
+          <li>The method I used to discover needs at scale &mdash; mining tens of thousands of sales conversations with <b>GenAI</b>.</li>
+          <li>How to <b>prove</b> a need actually drives purchase, using experiments and propensity-score matching &mdash; not correlations.</li>
+          <li>How one <b>need data asset</b> powers three GTM plays: high-propensity target lists, personalized talk tracks, and need-based ICPs.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 1. ICP -->
+    <div class="sec reveal" id="s-icp">
+      <p class="h-sec">01 &middot; Where every GTM strategy begins</p>
+      <h2>Targeting is the first move &mdash; and the ICP is the opening</h2>
+      <p>
+        Ask any go-to-market team where strategy starts and you&rsquo;ll hear the same answer: define the
+        target. Before a dollar of media or a single seller&rsquo;s hour is spent, you decide <em>who</em> you
+        are for. That definition usually takes the form of an <strong>Ideal Customer Profile (ICP)</strong> &mdash;
+        a description of the accounts most likely to buy, stay, and grow.
+      </p>
+      <p>
+        Take a category leader like HubSpot. A simplified version of its ICP might read:
+        <em>B2B companies with roughly 25&ndash;200 employees, an active marketing function, a steady flow of
+        inbound web traffic, and a patchwork of disconnected point tools they&rsquo;ve outgrown.</em> That
+        profile is useful. It tells media where to spend and sellers whom to call first. It is also, almost
+        entirely, a description of <strong>fit</strong> &mdash; of who an account <em>is</em>, not of what it is
+        trying to do that it currently can&rsquo;t.
+      </p>
+      <p>
+        That distinction is the whole story. Fit is necessary, but it is rarely the reason a deal closes.
+      </p>
+    </div>
+
+    <!-- 2. The standard stack & its ceiling -->
+    <div class="sec reveal" id="problem">
+      <p class="h-sec">02 &middot; The problem</p>
+      <h2>The standard targeting stack &mdash; and why it underperforms</h2>
+      <p>
+        Walk into almost any B2B software company and the targeting stack &mdash; whether it&rsquo;s a manual
+        ICP or a sophisticated account-propensity model &mdash; is built on three families of signal:
+      </p>
+      <ul>
+        <li><strong>Firmographics</strong> (mostly third-party): industry, employee count, revenue, tech stack, location. The &ldquo;who.&rdquo;</li>
+        <li><strong>Intent signals</strong> (first- and third-party): clicks on an in-product or web ad, a demo request, or third-party data showing the account is searching certain keywords across the web. The &ldquo;maybe-now.&rdquo;</li>
+        <li><strong>Product-engagement signals</strong> (first-party): login frequency, seats active, number of features touched. The &ldquo;how busy.&rdquo;</li>
+      </ul>
+      <p>
+        The best teams layer these into a single score &mdash; <em>fit &times; intent &times; win-probability</em> &mdash;
+        and the highest-fidelity programs blend all three. This works. It is cheap to
+        build, it scales, and it beats spraying the whole base. I want to be clear about that: <strong>a
+        correlational model is far better than no model at all.</strong>
+      </p>
+      <p>
+        But it has a ceiling, and the ceiling is structural. <strong>None of these signals is a direct causal
+        driver of the purchase decision.</strong> Firmographics answer <em>who</em> but miss <em>why</em> and
+        <em>when</em>. Intent proxies &mdash; ad clicks, keyword surges &mdash; are noisy,
+        late, and easily confused with idle curiosity. Engagement measures <em>activity</em>, not <em>unmet
+        need</em>: a power user who is perfectly happy looks identical to one who is about to hit a wall.
+      </p>
+      <blockquote>
+        Every one of these signals correlates with buying. None of them is the reason a customer buys.
+      </blockquote>
+      <p>
+        Because the inputs only correlate with the decision, the model&rsquo;s precision is capped no matter how
+        much data you pour in &mdash; and you feel it as a win rate that plateaus, message after message that
+        doesn&rsquo;t resonate, and sellers who quietly fall back on their own discovery.
+      </p>
+
+    </div>
+
+    <!-- 3. Enter NTF -->
+    <div class="sec reveal" id="framework">
+      <p class="h-sec">03 &middot; A different question</p>
+      <h2>Enter the Need-Centric Targeting Framework</h2>
+      <p>
+        So I flipped the question. Instead of <em>&ldquo;which accounts look like buyers?&rdquo;</em> the
+        framework asks <em>&ldquo;which customers have a need our product uniquely solves &mdash; right
+        now?&rdquo;</em>
+      </p>
+      <p>
+        Segmentation and firmographics define the <strong>WHO</strong>. A need-centric lens adds the
+        <strong>WHY</strong> and the <strong>WHEN</strong> &mdash; and those two are what actually move a deal.
+        The shift sounds almost obvious once you say it out loud. The hard part is operational: <em>how do you
+        identify a customer&rsquo;s need without talking to them?</em>
+      </p>
+    </div>
+
+    <!-- 4. Origin: transcripts -->
+    <div class="sec reveal" id="s-origin">
+      <p class="h-sec">04 &middot; How I got here</p>
+      <h2>The idea came from listening to what closers actually do</h2>
+      <p>
+        For years, analyzing sales conversations at scale was impossible &mdash; the data was unstructured and
+        the volume was crushing. That changed. As GenAI matured, my team could read <strong>tens of thousands
+        of sales-call transcripts</strong> with high accuracy and pull structure out of them.
+      </p>
+      <p>
+        When I dug into <em>how</em> our best reps were winning upgrades and attach products, the pattern was
+        almost monotonous. They didn&rsquo;t open with the product. They opened with the <strong>need</strong>:
+      </p>
+      <blockquote>&ldquo;Tell me about something you&rsquo;re trying to do today that your current setup won&rsquo;t let you.&rdquo;</blockquote>
+      <p>
+        Then &mdash; and only then &mdash; they pitched, framing the new capability entirely around the gap the
+        customer had just described. It&rsquo;s completely logical. People don&rsquo;t buy features; they buy a
+        way out of a problem. The winning motion was always <strong>explore the need &rarr; map it to a
+        capability &rarr; pitch to the need.</strong>
+      </p>
+      <p>
+        That gave me the thread to pull. If a great rep can <em>uncover</em> a need in conversation, then the
+        need leaves <em>traces</em> &mdash; in how the customer actually uses the product. The job was to find
+        those traces in data and read them the way a great rep reads a room.
+      </p>
+
+    </div>
+
+    <!-- 5. Mechanism -->
+    <div class="sec reveal" id="s-mechanism">
+      <p class="h-sec">05 &middot; The mechanism</p>
+      <h2>Reverse-engineering value into causal signals</h2>
+      <p>
+        Here is the core method. Rather than start from data we happen to have, NTF starts from the
+        <strong>differentiated value</strong> a product delivers and works <em>backward</em> to the data:
+      </p>
+      <ul>
+        <li>Begin with a <strong>differentiated value</strong> the product offers (something competitors or the lower tier can&rsquo;t match).</li>
+        <li>Identify the <strong>feature</strong> that delivers that value.</li>
+        <li>Find the <strong>data signal directly linked to needing that feature</strong> &mdash; a behavior a customer only exhibits when they have the underlying problem.</li>
+        <li>Treat that signal as evidence of an <strong>inferred need</strong>, which in turn drives <strong>purchase propensity</strong>.</li>
+      </ul>
+      <p>
+        The governing principle: <strong>the more direct the link between the signal and the feature, the
+        stronger the causal effect.</strong> A generic &ldquo;high engagement&rdquo; flag is a weak, distant
+        proxy. &ldquo;This customer repeatedly does by hand the exact thing our feature automates&rdquo; is a
+        near-causal one.
+      </p>
+
+
+      <h3>A worked example</h3>
+      <p>
+        QuickBooks Advanced offers a <strong>backup &amp; restore</strong> capability &mdash; differentiated
+        value for a business that can&rsquo;t afford to lose its books. What data signal directly implies that
+        need? <strong>A high volume of manual adjustments to the books, made by multiple users.</strong> A team
+        editing the ledger by hand, in parallel, is one bad entry away from a costly mistake &mdash; precisely
+        the pain backup &amp; restore removes. That behavior isn&rsquo;t a vague proxy; it <em>is</em> the need,
+        expressed in product telemetry.
+      </p>
+
+      <div class="vsn">
+        <p class="vsn__h"><b>NTF worked example</b> &nbsp;&middot;&nbsp; value &rarr; signal &rarr; need</p>
+        <div class="vsn__row">
+          <div class="vsn__cell"><p class="vsn__k">Differentiated value</p><p class="vsn__v"><b>Backup &amp; restore</b> &mdash; protect and recover the books</p></div>
+          <div class="vsn__arr">&rarr;</div>
+          <div class="vsn__cell"><p class="vsn__k">Direct data signal</p><p class="vsn__v"><b>High volume of manual book adjustments by multiple users</b></p></div>
+          <div class="vsn__arr">&rarr;</div>
+          <div class="vsn__cell"><p class="vsn__k">Inferred need</p><p class="vsn__v"><b>Guard against costly errors</b>; recover fast when they happen</p></div>
+        </div>
+        <p class="vsn__note">The signal is the behavior a customer only exhibits when they actually have the underlying problem &mdash; so it is near-causal, not coincidental.</p>
+      </div>
+
+      <p>
+        The same recipe generalizes. Every differentiated capability maps to a behavior a customer performs
+        <em>only</em> when they have the matching problem &mdash; and a behavioral threshold turns that raw
+        signal into a need:
+      </p>
+
+      <div class="vtbl">
+        <table>
+          <thead><tr><th>Differentiated capability</th><th>Direct data signal (with threshold)</th><th>Inferred need</th></tr></thead>
+          <tbody>
+            <tr><td><b>Batch transactions</b></td><td>Manually creates <b>40+</b> of the same transaction type per month</td><td class="need">Save time</td></tr>
+            <tr><td><b>Fixed-asset tracking</b></td><td>Tracks assets by hand via journal entries or a 3rd-party app</td><td class="need">Save time &amp; money</td></tr>
+            <tr><td><b>Workflow automation</b></td><td>Repeated manual approvals / reminders across users</td><td class="need">Save time</td></tr>
+            <tr><td><b>Payments matching</b></td><td>Manually matches <b>20+</b> deposits per month</td><td class="need">Save time &amp; accuracy</td></tr>
+            <tr><td><b>Higher user limits</b></td><td>Repeatedly bumps against seat / user caps</td><td class="need">Collaborate at scale</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Underneath sits a compact taxonomy of needs &mdash; <em>save time, save money, better decisions,
+        compliance &amp; security, faster onboarding, easier support</em> &mdash; so every signal rolls up to a
+        benefit a customer (and a marketer) instantly understands.
+      </p>
+    </div>
+
+    <!-- 6. Proof: causal inference -->
+    <div class="sec reveal" id="proof">
+      <p class="h-sec">06 &middot; The proof</p>
+      <h2>Proving it: causal inference, not correlation</h2>
+      <p>
+        A signal that <em>looks</em> like a need still has to earn its place. This is the step that separates
+        NTF from a dressed-up propensity model: before a need enters the framework, we test whether it
+        <strong>causally</strong> moves the outcome &mdash; with experiments where we can run them
+        (holdouts, A/B tests, uplift modeling) and quasi-experimental methods where we can&rsquo;t
+        (propensity-score matching, difference-in-differences, controlling for firmographics). Needs that wash
+        out under controls get pruned; needs that survive get <em>weighted by how much they actually move the
+        number.</em>
+      </p>
+
+      <h3>Example 1 &mdash; Need &rarr; upgrade</h3>
+      <p>
+        For one flagship product we isolated a set of customer needs and tested each against the decision to
+        upgrade. Critically, the <strong>causal cut controlled for firmographics, industry, and revenue</strong>;
+        a plain correlation does not. Both views pointed the same way, which gave us confidence &mdash; but the
+        causal view is what we trusted for weighting. Three findings shaped everything downstream:
+      </p>
+      <ul>
+        <li><strong>Needs are not equal.</strong> The strongest needs (e.g., hitting user limits, manual workflow toil) drove on the order of a <strong>~5&times; higher upgrade rate</strong> <em>(illustrative)</em>; the weakest barely moved it &mdash; so we stopped treating them the same.</li>
+        <li><strong>More needs, more conversion.</strong> Upgrade likelihood roughly <strong>doubled</strong> the moment a customer had even one verified need, then climbed almost linearly with each additional need <em>(illustrative)</em>.</li>
+        <li><strong>Needs compound.</strong> Certain <em>pairs</em> of needs converted far above either need alone &mdash; the combination, not just the count, carries signal.</li>
+      </ul>
+
+      <h3>Example 2 &mdash; Feature adoption &rarr; retention</h3>
+      <p>
+        Expansion isn&rsquo;t worth much if it doesn&rsquo;t stick, so we ran the same discipline on retention,
+        using <strong>propensity-score matching</strong> to build an apples-to-apples comparison &mdash; matching
+        adopters to non-adopters on tenure, firmographics, and early engagement to strip out selection bias and
+        isolate the <em>causal</em> value of adoption. The pattern was sharp: crossing a threshold of adopted
+        capabilities produced a <strong>double-digit-percentage-point lift in one-year retention</strong>
+        <em>(illustrative)</em>, and for brand-new customers, getting to the <em>first</em> meaningful capability
+        in the first 30 days sharply cut early churn.
+      </p>
+      <p>
+        The takeaway compounds the whole thesis: the <em>same</em> need signals that predict who will
+        <em>buy</em> more also predict who will <em>stay</em> &mdash; so one asset serves acquisition,
+        expansion, <em>and</em> retention.
+      </p>
+
+      <figure class="fig reveal">
+        <div class="schematic">
+          <svg class="dia" viewBox="0 0 720 230" role="img" aria-label="A population splits into customers who show a need signal (treatment) and a matched control with the same firmographics. Propensity-score matching balances them, and outcome bars show the treatment group converting and retaining well above control, the gap labeled isolated causal lift.">
+            <rect class="node" x="20" y="92" width="150" height="46" rx="10"/>
+            <text class="txt" x="36" y="113">Install base</text><text class="lbl" x="36" y="128">existing customers</text>
+            <path class="stroke-c" d="M170 100 C210 100 210 58 250 58" marker-end="url(#ahC)"/>
+            <path class="stroke" d="M170 130 C210 130 210 168 250 168" marker-end="url(#ahM)"/>
+            <rect class="node-c" x="250" y="34" width="168" height="48" rx="10"/>
+            <text class="txt-c" x="266" y="55">Shows need signal</text><text class="lbl-c" x="266" y="71">treatment</text>
+            <rect class="node" x="250" y="146" width="168" height="48" rx="10"/>
+            <text class="txt" x="266" y="167">Matched control</text><text class="lbl" x="266" y="183">same firmographics &middot; tenure</text>
+            <!-- matching node -->
+            <path class="stroke-c" d="M418 58 C448 58 448 114 476 114" marker-end="url(#ahC)"/>
+            <path class="stroke" d="M418 170 C448 170 448 114 476 114" marker-end="url(#ahM)"/>
+            <rect class="node-c" x="476" y="86" width="92" height="56" rx="12"/>
+            <text class="txt-c" x="490" y="110">PSM</text><text class="lbl-c" x="490" y="126">balance</text>
+            <path class="stroke-c" d="M568 114 H600" marker-end="url(#ahC)"/>
+            <!-- outcome bars -->
+            <text class="lbl" x="610" y="58">outcome</text>
+            <rect class="bar-c" x="610" y="66" width="92" height="16" rx="3"/>
+            <text class="lbl-c" x="610" y="60" style="display:none"></text>
+            <rect class="bar-m" x="610" y="92" width="34" height="16" rx="3"/>
+            <text class="lbl" x="610" y="126">treatment vs. control</text>
+            <text class="lbl-c" x="610" y="140">= isolated causal lift</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1.</b> Validation by design. Matching need-signal customers to look-alike controls isolates the causal lift &mdash; what a correlation can never claim. <em>Bars illustrative.</em></figcaption>
+      </figure>
+    </div>
+
+    <!-- 7. Payoff: one asset, three plays -->
+    <div class="sec reveal" id="playbook">
+      <p class="h-sec">07 &middot; The payoff</p>
+      <h2>One data asset, three GTM plays</h2>
+      <p>
+        The output of all this isn&rsquo;t a one-off model &mdash; it&rsquo;s a durable <strong>need data
+        asset</strong>: a single source-of-truth table that, for every customer, records which needs they have,
+        how intense each is, and how much each causally matters. That asset powers three plays at once.
+      </p>
+
+      <h3>Play 1 &mdash; A need score for high-propensity target lists</h3>
+      <p>
+        Roll a customer&rsquo;s needs into a single <strong>need score</strong> and you get a ranked,
+        high-propensity target list that Marketing and Sales can act on tomorrow. The score isn&rsquo;t a
+        black box. It&rsquo;s built from the causal weights and breadth effect we measured: each need is
+        weighted by its <strong>causal importance</strong> (the lift it actually drives, not a hand-set
+        weight), behavioral <strong>thresholds</strong> turn raw signals into needs (e.g., <em>40+ manual
+        transactions a month</em>), and a <strong>breadth multiplier</strong> rewards customers who have
+        several active needs &mdash; who convert well above those with a single, even strong, one.
+      </p>
+
+      <h3>Play 2 &mdash; Personalized content and talk tracks</h3>
+      <p>
+        Because every score is explainable down to the specific need, the messaging writes itself. Marketers
+        build <strong>benefit-specific content and offers</strong> for each need cohort &mdash; not a generic
+        &ldquo;efficiency&rdquo; campaign, but &ldquo;you create 40+ invoices by hand every month; here&rsquo;s
+        the hour you get back.&rdquo; Sellers get the customer&rsquo;s needs <strong>before the call</strong>,
+        plus a talk track tuned to them &mdash; the same explore-then-pitch motion our best reps already run, now
+        handed to everyone.
+      </p>
+
+      <h3>Play 3 &mdash; Need-based ICPs and a play per ICP</h3>
+      <p>
+        Finally, the asset lets us redraw the ICP itself &mdash; not by firmographics, but by
+        <strong>need archetype</strong>. &ldquo;Multi-user teams editing the books by hand&rdquo; is a sharper,
+        more actionable ICP than &ldquo;50&ndash;200 employees in professional services,&rdquo; because it names
+        the <em>why</em>. Each need-based ICP gets its own GTM play: the right channel, offer, and motion for
+        that specific problem.
+      </p>
+
+
+      <p>
+        Step back and you can see this as a <strong>maturity ladder</strong>. Most teams start with generic
+        benefit campaigns, graduate to propensity-based targeting, and &mdash; if they get there &mdash; reach
+        need-centric targeting, which is the only rung that targets the <em>reason</em> a customer buys:
+      </p>
+
+      <div class="cmp">
+        <table>
+          <thead>
+            <tr><th>Dimension</th><th>Generic benefit</th><th>Propensity-based</th><th>Need-centric (NTF)</th></tr>
+          </thead>
+          <tbody>
+            <tr><th>Targets</th><td>A broad segment / vertical</td><td>Accounts that <b>resemble</b> buyers</td><td>Customers with a specific <b>need</b>, at the right moment</td></tr>
+            <tr><th>Core signal</th><td>Firmographics</td><td>Fit + intent + engagement</td><td>Behavior <b>directly</b> tied to a feature&rsquo;s value</td></tr>
+            <tr><th>Causal strength</th><td>None</td><td>Correlational</td><td><b>Causally tested</b> &amp; weighted</td></tr>
+            <tr><th>Personalization</th><td>One message for all</td><td>Product-level message</td><td><b>Benefit-specific</b> to the customer&rsquo;s need</td></tr>
+            <tr><th>Effect on win rate</th><td>Baseline</td><td>Better than baseline</td><td><b>Higher ceiling</b> &mdash; targets the why</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 8. Conclusion -->
+    <div class="sec reveal" id="s-start">
+      <p class="h-sec">08 &middot; Recommendation</p>
+      <h2>Where to start</h2>
+      <p>
+        You don&rsquo;t need to boil the ocean. The framework compounds, so the right move is to prove it on one
+        product&rsquo;s most differentiated value and let the win pull the next investment:
+      </p>
+      <div class="steps">
+        <div class="step"><div class="step__n">1</div><p class="step__b"><b>Pick one differentiated value.</b> Choose a capability your top tier has and the rest of the market doesn&rsquo;t.</p></div>
+        <div class="step"><div class="step__n">2</div><p class="step__b"><b>Build the value &rarr; signal map.</b> Name the behavior a customer only shows when they have the matching problem, and set its threshold.</p></div>
+        <div class="step"><div class="step__n">3</div><p class="step__b"><b>Validate one need causally.</b> Run a holdout or matched comparison. If the need doesn&rsquo;t move the outcome under controls, cut it.</p></div>
+        <div class="step"><div class="step__n">4</div><p class="step__b"><b>Ship a need-scored list.</b> Hand Sales and Marketing a ranked cohort with the <em>reason</em> attached &mdash; and a talk track to match.</p></div>
+        <div class="step"><div class="step__n">5</div><p class="step__b"><b>Measure lift vs. the propensity baseline.</b> Hold out a slice scored the old way. Let the win-rate delta fund the next need.</p></div>
+      </div>
+      <p>
+        For most of the last decade, inferring need at scale was a fantasy &mdash; the evidence was locked inside
+        unstructured conversations no one could read in bulk. GenAI changed the economics, and that&rsquo;s why
+        need-centric targeting is newly practical rather than merely appealing. The companies that win the next
+        cycle of expansion won&rsquo;t be the ones with the biggest list of look-alike accounts. They&rsquo;ll be
+        the ones who can answer, for every customer they already have, a deceptively simple question:
+        <strong>what do they need next &mdash; and how do we know?</strong>
+      </p>
+    </div>
+
+  </div><!-- /.prose -->
+</section>
+
+<!-- ============================================================ AUTHOR == -->
+<section class="spread spread--dark author">
+  <div class="author__wrap reveal">
+    <div class="author__card">
+      <div class="author__mono" aria-hidden="true">&infin;</div>
+      <div>
+        <p class="author__name">Wenlong Song</p>
+        <p class="author__role">Head of Mid-Market Data Science &middot; Intuit</p>
+        <p class="author__bio">
+          I turn go-to-market into a data- and AI-driven growth engine &mdash; from the data foundation up to the
+          agent in the seller&rsquo;s workflow. Across 14+ years in consulting, C2C e-commerce, and B2B SaaS,
+          the throughline is the same: finding the growth opportunity no one has named yet, then building the
+          system that captures it.
+        </p>
+        <div class="author__links">
+          <a class="clink" href="https://wenlongsong.github.io/data-science/introduction.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M13 5l7 7-7 7"/></svg>
+            View portfolio
+          </a>
+          <a class="clink" href="https://www.linkedin.com/in/wenlong-s-29277834/" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 10v7M7 7v.01M11 17v-4a2 2 0 014 0v4"/></svg>
+            Connect on LinkedIn
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- sources -->
+    <div class="sources">
+      <p class="disclaimer">
+        All figures, signals, and examples in this article are illustrative and directional, presented to
+        explain the method &mdash; they are not actual company results and contain no confidential data. Product
+        names are used only to make the mechanism concrete.
+      </p>
+    </div>
+
+    <div class="footer">
+      <span>&copy; 2026 Wenlong Song</span>
+      <span id="lastmod"></span>
+    </div>
+  </div>
+</section>
+</article>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* nav condense on scroll */
+  var nav = document.getElementById("nav");
+  function onScroll(){ nav.classList.toggle("is-scrolled", window.scrollY > 24); }
+  onScroll(); window.addEventListener("scroll", onScroll, {passive:true});
+
+  /* reading-progress bar */
+  var bar = document.getElementById("progress");
+  function onProgress(){
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    var pct = max > 0 ? (h.scrollTop || window.scrollY) / max * 100 : 0;
+    bar.style.width = pct + "%";
+  }
+  onProgress(); window.addEventListener("scroll", onProgress, {passive:true});
+  window.addEventListener("resize", onProgress, {passive:true});
+
+  /* scroll reveal */
+  var reveals = [].slice.call(document.querySelectorAll(".reveal"));
+  if (reduce || !("IntersectionObserver" in window)){
+    reveals.forEach(function(el){ el.classList.add("is-in"); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add("is-in"); io.unobserve(e.target); }
+      });
+    }, {threshold:0.12, rootMargin:"0px 0px -6% 0px"});
+    reveals.forEach(function(el){ io.observe(el); });
+  }
+
+  /* footer last-modified */
+  var lm = document.getElementById("lastmod");
+  if (lm){
+    var d = new Date(document.lastModified);
+    if (isNaN(d.getTime())) d = new Date();
+    lm.textContent = "Last updated " + d.toLocaleDateString("en-US", {year:"numeric", month:"long", day:"numeric"});
+  }
+
+  /* All-Articles dropdown */
+  var ddWrap = document.querySelector(".nav__dd-wrap");
+  if (ddWrap){
+    var ddToggle = ddWrap.querySelector(".nav__dd-toggle");
+    function setDD(open){
+      ddWrap.classList.toggle("is-open", open);
+      ddToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    ddToggle.addEventListener("click", function(e){
+      e.stopPropagation();
+      setDD(!ddWrap.classList.contains("is-open"));
+    });
+    document.addEventListener("click", function(e){ if (!ddWrap.contains(e.target)) setDD(false); });
+    document.addEventListener("keydown", function(e){ if (e.key === "Escape") setDD(false); });
+  }
+
+  /* right section-nav rail: scrollspy + show/hide */
+  var rail = document.getElementById("rail");
+  if (rail){
+    var spies = [].slice.call(rail.querySelectorAll("a"));
+    var heroEl = document.querySelector(".hero");
+    var authorEl = document.querySelector(".author");
+    function railVis(){
+      var y = window.scrollY || document.documentElement.scrollTop;
+      var heroH = heroEl ? heroEl.offsetHeight : 600;
+      var top = y > heroH * 0.6;
+      var bottom = authorEl ? (y + window.innerHeight * 0.55 < authorEl.offsetTop) : true;
+      rail.classList.toggle("is-on", top && bottom);
+    }
+    railVis();
+    window.addEventListener("scroll", railVis, {passive:true});
+    window.addEventListener("resize", railVis, {passive:true});
+    if ("IntersectionObserver" in window){
+      var setActive = function(id){
+        spies.forEach(function(a){ a.classList.toggle("is-active", a.getAttribute("href") === "#" + id); });
+      };
+      var sio = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if (e.isIntersecting && e.target.id) setActive(e.target.id); });
+      }, {rootMargin:"-45% 0px -50% 0px", threshold:0});
+      spies.forEach(function(a){
+        var sec = document.querySelector(a.getAttribute("href"));
+        if (sec) sio.observe(sec);
+      });
+    }
+  }
+})();
+</script>
+</body>
+</html>
