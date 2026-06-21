@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>An AI-Powered Sales Intelligence Framework — Wenlong Song</title>
+<meta name="description" content="B2B sellers spend under a third of the week actually selling. An AI-powered Sales Intelligence Framework — a data foundation, an intelligence engine, and tools embedded in the seller's workflow — strips out the non-customer-facing work and lifts win rate at the same time." />
+<meta name="author" content="Wenlong Song" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Sellers spend most of the week not selling. Here's the intelligence layer that gives it back." />
+<meta property="og:description" content="An AI-powered Sales Intelligence Framework that removes a seller's non-customer-facing work and raises win rate — data foundation, intelligence engine, and seller-facing tools, including an autonomous work queue." />
+
+<!-- Favicon: WS monogram (same as site) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B2942'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='20' font-weight='700' fill='%2329B5E8' text-anchor='middle'%3E%E2%88%9E%3C/text%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================================================ TOKENS == */
+/* Inherited verbatim from the personal-site design system. */
+:root{
+  --midnight:#0B2942;
+  --midnight-2:#0E3350;
+  --midnight-3:#123E60;
+  --cyan:#29B5E8;
+  --cyan-soft:#7FD3F2;
+  --clay:#D97757;
+  --clay-2:#C6613F;
+  --steel:#11567F;
+  --ink:#16222C;
+  --slate:#5A6B7B;
+  --mist:#C2D6E3;
+  --mist-dim:#8AA6BC;
+  --paper:#FAF9F5;
+  --paper-2:#F0EEE6;
+  --white:#FFFFFF;
+
+  --line-dark:rgba(194,214,227,.16);
+  --line-light:rgba(11,41,66,.12);
+
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Code",Consolas,monospace;
+
+  --wrap:1180px;
+  --read:720px;
+  --gutter:clamp(1.25rem,5vw,4.5rem);
+  --pad-y:clamp(4.5rem,9vw,8rem);
+  --radius:14px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+
+/* ============================================================ RESET ===== */
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:1.0625rem;line-height:1.65;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+img,svg{display:block;max-width:100%;}
+a{color:inherit;text-decoration:none;}
+::selection{background:var(--cyan);color:var(--midnight);}
+:focus-visible{outline:2.5px solid var(--cyan);outline-offset:3px;border-radius:3px;}
+
+/* ============================================================ LAYOUT ==== */
+.spread{position:relative;padding:var(--pad-y) var(--gutter);overflow:hidden;}
+.spread--dark{background:var(--midnight);color:var(--mist);}
+.spread--light{background:var(--paper);color:var(--ink);}
+.wrap{max-width:var(--wrap);margin-inline:auto;position:relative;z-index:2;}
+
+.eyebrow{
+  font-family:var(--mono);font-size:.74rem;font-weight:500;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--cyan);display:inline-flex;align-items:center;gap:.6rem;
+  margin:0 0 1.4rem;
+}
+.eyebrow::before{content:"";width:1.6rem;height:1px;background:var(--cyan);opacity:.7;}
+.spread--light .eyebrow{color:var(--clay);}
+.spread--light .eyebrow::before{background:var(--steel);}
+
+/* ============================================================ PROGRESS = */
+.progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:200;
+  background:linear-gradient(90deg,var(--steel),var(--cyan));box-shadow:0 0 12px rgba(41,181,232,.6);
+  transition:width .1s linear;}
+
+/* ============================================================ NAV ======= */
+.nav{
+  position:fixed;inset:0 0 auto 0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.05rem var(--gutter);
+  transition:padding .35s var(--ease),background .35s var(--ease),
+             border-color .35s var(--ease),backdrop-filter .35s var(--ease);
+  border-bottom:1px solid transparent;
+}
+.nav.is-scrolled{
+  padding:.6rem var(--gutter);
+  background:rgba(8,30,49,.82);backdrop-filter:blur(14px) saturate(140%);
+  border-bottom:1px solid var(--line-dark);
+}
+.nav__mark{
+  font-family:var(--serif);font-weight:700;font-size:1.18rem;letter-spacing:.02em;
+  color:var(--white);display:inline-flex;align-items:center;gap:.55rem;
+}
+.nav__mark b{color:var(--cyan);font-size:1.5em;line-height:1;position:relative;top:.04em;}
+.nav__links{display:flex;gap:1.55rem;list-style:none;margin:0;padding:0;align-items:center;}
+.nav__links a{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mist);position:relative;padding:.3rem 0;transition:color .25s;
+}
+.nav__links a::after{
+  content:"";position:absolute;left:0;bottom:-2px;width:0;height:1.5px;background:var(--cyan);
+  transition:width .3s var(--ease);
+}
+.nav__links a:hover{color:var(--white);}
+.nav__links a:hover::after{width:100%;}
+.nav__links a.back{
+  border:1px solid var(--line-dark);border-radius:999px;padding:.4rem .9rem;color:var(--cyan-soft);
+}
+.nav__links a.back::after{display:none;}
+.nav__links a.back:hover{border-color:var(--cyan);color:var(--white);}
+
+/* All-Articles dropdown */
+.nav__dd-wrap{position:relative;}
+.nav__dd-toggle{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mist);background:none;border:0;cursor:pointer;padding:.3rem 0;
+  display:inline-flex;align-items:center;gap:.5rem;transition:color .25s;
+}
+.nav__dd-toggle:hover,.nav__dd-wrap.is-open .nav__dd-toggle{color:var(--white);}
+.nav__dd-toggle .caret{width:.46rem;height:.46rem;border-right:1.6px solid currentColor;
+  border-bottom:1.6px solid currentColor;transform:rotate(45deg);margin-top:-.18rem;transition:transform .3s var(--ease);}
+.nav__dd-wrap.is-open .nav__dd-toggle .caret{transform:rotate(-135deg);margin-top:.1rem;}
+.nav__dd{
+  position:absolute;top:calc(100% + .7rem);right:0;min-width:250px;max-width:min(330px,82vw);
+  list-style:none;margin:0;padding:.5rem;
+  background:rgba(8,30,49,.97);backdrop-filter:blur(14px) saturate(140%);
+  border:1px solid var(--line-dark);border-radius:12px;box-shadow:0 26px 60px -24px rgba(0,0,0,.7);
+  opacity:0;visibility:hidden;transform:translateY(-8px);
+  transition:opacity .25s var(--ease),transform .25s var(--ease),visibility .25s;
+}
+.nav__dd-wrap.is-open .nav__dd{opacity:1;visibility:visible;transform:none;}
+.nav__dd li{margin:0;}
+.nav__dd a{
+  display:flex;align-items:baseline;gap:.55rem;padding:.6rem .7rem;border-radius:8px;
+  font-family:var(--sans);font-size:.88rem;font-weight:500;letter-spacing:0;text-transform:none;
+  color:var(--mist);line-height:1.35;transition:background .2s,color .2s;
+}
+.nav__dd a::after{display:none;}
+.nav__dd a:hover{background:rgba(41,181,232,.1);color:var(--white);}
+.nav__dd a .dd-n{font-family:var(--mono);font-size:.62rem;font-weight:500;color:var(--mist-dim);flex:none;position:relative;top:-.05em;}
+.nav__dd .is-current{color:var(--cyan-soft);background:rgba(41,181,232,.08);}
+.nav__dd .is-current .dd-n{color:var(--cyan);}
+.nav__dd .is-current:hover{background:rgba(41,181,232,.08);color:var(--cyan-soft);}
+
+/* Right section-nav rail (scrollspy) */
+.rail{
+  position:fixed;top:50%;right:clamp(.9rem,2.2vw,2rem);transform:translateY(-50%);z-index:80;
+  opacity:0;pointer-events:none;transition:opacity .4s var(--ease);
+}
+.rail.is-on{opacity:1;pointer-events:auto;}
+.rail ul{list-style:none;margin:0;padding:0;position:relative;display:flex;flex-direction:column;gap:.12rem;}
+.rail ul::before{content:"";position:absolute;top:.6rem;bottom:.6rem;right:3px;width:1.5px;background:var(--line-light);}
+.rail a{
+  display:flex;align-items:center;justify-content:flex-end;gap:.65rem;padding:.3rem 0;
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--slate);opacity:.5;transition:color .25s,opacity .25s;
+}
+.rail a:hover{opacity:1;color:var(--ink);}
+.rail a.is-active{opacity:1;color:var(--clay);font-weight:500;}
+.rail__dot{width:7px;height:7px;border-radius:50%;border:1.5px solid var(--mist-dim);background:var(--paper);
+  flex:none;position:relative;z-index:1;transition:background .25s,border-color .25s,transform .25s;}
+.rail a:hover .rail__dot{border-color:var(--slate);}
+.rail a.is-active .rail__dot{background:var(--clay);border-color:var(--clay);transform:scale(1.2);box-shadow:0 0 0 3px var(--paper);}
+@media (max-width:1180px){ .rail{display:none;} }
+
+/* ============================================================ HERO ====== */
+.hero{
+  min-height:88svh;display:flex;align-items:flex-end;
+  padding-top:8rem;padding-bottom:clamp(3rem,6vw,5rem);
+  background:
+    radial-gradient(120% 90% at 88% 0%,rgba(41,181,232,.13),transparent 55%),
+    radial-gradient(90% 70% at 0% 100%,rgba(17,86,127,.30),transparent 60%),
+    var(--midnight);
+}
+.lattice{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5;}
+.lattice svg{position:absolute;width:min(620px,55vw);height:auto;}
+.lattice .l-tr{top:-8%;right:-7%;opacity:.5;}
+.hero__wrap{max-width:980px;}
+.kicker{
+  font-family:var(--mono);font-size:.78rem;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--cyan);margin:0 0 1.6rem;display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;
+}
+.kicker .tagpill{border:1px solid var(--line-dark);border-radius:999px;padding:.2rem .7rem;color:var(--mist-dim);letter-spacing:.14em;}
+.art-title{
+  font-family:var(--serif);font-weight:600;color:var(--white);
+  font-size:clamp(2.3rem,5.6vw,4.1rem);line-height:1.02;letter-spacing:-.022em;margin:0;
+}
+.art-title em{font-style:italic;font-weight:400;color:var(--cyan-soft);}
+.art-dek{
+  margin:1.7rem 0 0;max-width:62ch;color:var(--mist);
+  font-size:clamp(1.1rem,1.7vw,1.34rem);line-height:1.5;
+}
+.byline{
+  margin:2.4rem 0 0;display:flex;flex-wrap:wrap;gap:.5rem 1.1rem;align-items:center;
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mist-dim);
+}
+.byline b{color:var(--mist);font-weight:500;}
+.byline .sep{width:5px;height:5px;border-radius:50%;background:var(--cyan);opacity:.7;}
+
+/* ============================================================ ARTICLE === */
+.article{background:var(--paper);}
+.prose{max-width:var(--read);margin-inline:auto;}
+.prose > p{margin:0 0 1.35rem;color:var(--ink);font-size:1.135rem;line-height:1.72;}
+.prose > p.lead{
+  font-family:var(--serif);font-weight:400;font-size:clamp(1.35rem,2.4vw,1.7rem);
+  line-height:1.42;letter-spacing:-.01em;color:var(--midnight);margin-bottom:1.6rem;
+}
+.prose a.ref{color:var(--steel);border-bottom:1px solid rgba(17,86,127,.35);font-weight:500;}
+.prose a.ref:hover{color:var(--cyan-soft);background:rgba(41,181,232,.08);}
+.prose strong{font-weight:600;color:var(--midnight);}
+.prose em{font-style:italic;}
+
+.h-sec{
+  font-family:var(--mono);font-size:.72rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--clay);display:flex;align-items:center;gap:.6rem;margin:0 0 .9rem;
+}
+.h-sec::before{content:"";width:1.5rem;height:1px;background:var(--steel);opacity:.8;}
+.prose h2{
+  font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,3.3vw,2.4rem);
+  line-height:1.08;letter-spacing:-.018em;color:var(--midnight);margin:0 0 1rem;scroll-margin-top:6rem;
+}
+.prose h3{
+  font-family:var(--sans);font-weight:600;font-size:1.18rem;line-height:1.35;
+  color:var(--ink);margin:2.2rem 0 .6rem;
+}
+.sec{padding:clamp(2.6rem,5vw,4rem) 0 0;scroll-margin-top:5.5rem;}
+.sec--first{padding-top:0;}
+
+.prose ul,.prose ol{margin:0 0 1.4rem;padding-left:0;list-style:none;}
+.prose ul li{position:relative;padding-left:1.6rem;margin:0 0 .65rem;color:var(--ink);line-height:1.6;}
+.prose ul li::before{content:"";position:absolute;left:.1rem;top:.62em;width:.5rem;height:.5rem;
+  border-radius:1px;background:var(--cyan);transform:rotate(45deg);}
+.prose ol{counter-reset:li;}
+.prose ol li{position:relative;padding-left:2.2rem;margin:0 0 .8rem;color:var(--ink);line-height:1.6;counter-increment:li;}
+.prose ol li::before{content:counter(li);position:absolute;left:0;top:.05em;
+  font-family:var(--mono);font-size:.78rem;font-weight:700;color:var(--steel);
+  width:1.5rem;height:1.5rem;border:1.5px solid var(--steel);border-radius:50%;
+  display:grid;place-items:center;}
+.prose li b{color:var(--midnight);font-weight:600;}
+
+blockquote{
+  margin:2rem 0;padding:.2rem 0 .2rem 1.6rem;border-left:3px solid var(--clay);
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:clamp(1.3rem,2.3vw,1.62rem);line-height:1.4;color:var(--midnight);letter-spacing:-.01em;
+}
+
+/* ---- "What you'll learn" TLDR card ---- */
+.tldr{
+  margin:2.4rem 0 .5rem;background:var(--white);border:1px solid var(--line-light);
+  border-radius:var(--radius);padding:clamp(1.4rem,2.4vw,2rem);
+  box-shadow:0 18px 44px -30px rgba(11,41,66,.45);
+}
+.tldr__h{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--steel);margin:0 0 1.1rem;display:flex;align-items:center;gap:.6rem;}
+.tldr__h::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px 1px rgba(41,181,232,.6);}
+.tldr ul{margin:0;}
+.tldr ul li{margin-bottom:.8rem;font-size:1.04rem;}
+.tldr ul li:last-child{margin-bottom:0;}
+
+/* ---- figures (reuse .schematic + .dia) ---- */
+.fig{margin:2.4rem 0;max-width:960px;margin-inline:auto;}
+.schematic{
+  background:linear-gradient(165deg,var(--midnight),#0a2540);border-radius:var(--radius);
+  border:1px solid rgba(11,41,66,.18);padding:clamp(1.5rem,3vw,2.4rem);
+  box-shadow:0 24px 50px -28px rgba(11,41,66,.5);
+}
+.schematic svg{width:100%;height:auto;}
+.fig figcaption{
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--slate);margin-top:1rem;text-align:center;line-height:1.6;
+}
+.fig figcaption b{color:var(--clay);font-weight:500;}
+/* svg shared styling (from site) + article extensions */
+.dia{font-family:var(--mono);}
+.dia .stroke{stroke:var(--mist);stroke-width:1.4;fill:none;opacity:.5;}
+.dia .stroke-c{stroke:var(--cyan);stroke-width:1.7;fill:none;}
+.dia .weak{stroke:var(--mist-dim);stroke-width:1.5;fill:none;stroke-dasharray:5 5;opacity:.65;}
+.dia .node{fill:var(--midnight-2);stroke:var(--mist);stroke-width:1.3;opacity:.92;}
+.dia .node-c{fill:rgba(41,181,232,.16);stroke:var(--cyan);stroke-width:1.7;}
+.dia .node-k{fill:rgba(217,119,87,.16);stroke:var(--clay);stroke-width:1.6;}
+.dia .txt{fill:var(--mist);font-size:12px;letter-spacing:.02em;}
+.dia .txt-c{fill:var(--cyan-soft);font-size:12px;letter-spacing:.02em;}
+.dia .txt-k{fill:#F0B49B;font-size:12px;letter-spacing:.02em;}
+.dia .lbl{fill:var(--mist-dim);font-size:9.5px;letter-spacing:.03em;}
+.dia .lbl-c{fill:var(--cyan-soft);font-size:9.5px;letter-spacing:.03em;}
+.dia .ttl{fill:var(--white);font-size:12.5px;font-weight:700;letter-spacing:.04em;}
+.dia .bar{fill:rgba(194,214,227,.16);}
+.dia .bar-c{fill:var(--cyan);}
+.dia .bar-m{fill:var(--mist-dim);opacity:.55;}
+
+/* ---- value->signal mini table (reused for friction map) ---- */
+.vtbl{margin:1.8rem 0;border:1px solid var(--line-light);border-radius:12px;overflow:hidden;background:var(--white);}
+.vtbl table{width:100%;border-collapse:collapse;font-size:.92rem;}
+.vtbl th{background:var(--paper-2);text-align:left;font-family:var(--mono);font-size:.6rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--steel);padding:.7rem .9rem;font-weight:600;}
+.vtbl td{padding:.7rem .9rem;border-top:1px solid var(--line-light);vertical-align:top;line-height:1.45;color:var(--ink);}
+.vtbl td b{color:var(--midnight);font-weight:600;}
+.vtbl .need{font-family:var(--mono);font-size:.74rem;color:var(--clay-2);}
+
+/* ---- maturity / model comparison table ---- */
+.cmp{margin:2.2rem 0;overflow-x:auto;border-radius:12px;border:1px solid var(--line-light);}
+.cmp table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:560px;background:var(--white);}
+.cmp thead th{text-align:left;padding:.95rem .95rem;font-family:var(--sans);font-weight:600;font-size:.92rem;
+  color:#fff;vertical-align:bottom;line-height:1.3;}
+.cmp thead th:nth-child(1){background:var(--ink);font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;font-weight:500;}
+.cmp thead th:nth-child(2){background:var(--slate);}
+.cmp thead th:nth-child(3){background:var(--steel);}
+.cmp thead th:nth-child(4){background:var(--cyan);color:#08243B;}
+.cmp tbody th{text-align:left;font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--steel);font-weight:600;padding:.8rem .95rem;background:var(--paper-2);vertical-align:top;width:18%;}
+.cmp tbody td{padding:.8rem .95rem;border-top:1px solid var(--line-light);vertical-align:top;line-height:1.45;color:var(--ink);}
+.cmp tbody td:last-child{background:rgba(41,181,232,.07);font-weight:500;}
+.cmp tbody td b{color:var(--midnight);}
+/* 3-column variant: highlight the final (framework) column header in cyan */
+.cmp3 thead th:nth-child(3){background:var(--cyan);color:#08243B;}
+
+/* ---- adoption steps ---- */
+.steps{margin:1.8rem 0;display:grid;gap:1rem;}
+.step{display:grid;grid-template-columns:auto 1fr;gap:1.1rem;align-items:start;
+  background:var(--white);border:1px solid var(--line-light);border-radius:12px;padding:1.1rem 1.3rem;}
+.step__n{font-family:var(--serif);font-weight:600;font-size:1.5rem;color:var(--cyan);line-height:1;
+  width:2.4rem;height:2.4rem;display:grid;place-items:center;border:1.5px solid var(--cyan);border-radius:10px;background:rgba(41,181,232,.06);}
+.step__b{margin:0;font-size:1rem;line-height:1.55;color:var(--ink);}
+.step__b b{color:var(--midnight);font-weight:600;}
+
+/* ============================================================ ARTICLE-02 ADDITIONS == */
+/* big-number external-stat callouts */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2.2rem 0;}
+.stat{background:var(--white);border:1px solid var(--line-light);border-radius:14px;padding:1.3rem 1.25rem;
+  box-shadow:0 18px 44px -32px rgba(11,41,66,.45);}
+.stat__n{font-family:var(--serif);font-weight:600;font-size:clamp(1.9rem,3.6vw,2.5rem);line-height:1;
+  color:var(--midnight);letter-spacing:-.02em;}
+.stat__n b{color:var(--clay);font-weight:600;}
+.stat__l{margin:.6rem 0 0;font-size:.92rem;line-height:1.45;color:var(--ink);}
+.stat__s{margin:.7rem 0 0;font-family:var(--mono);font-size:.57rem;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);}
+@media (max-width:680px){ .stats{grid-template-columns:1fr;} }
+
+/* seller-workflow friction strip */
+.flow{display:flex;flex-wrap:wrap;gap:.7rem;margin:2rem 0 1rem;}
+.flow__stage{flex:1 1 158px;min-width:158px;background:var(--white);border:1px solid var(--line-light);
+  border-radius:12px;padding:.85rem .95rem .9rem 1.1rem;position:relative;overflow:hidden;}
+.flow__stage::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--clay);opacity:.85;}
+.flow__n{font-family:var(--mono);font-size:.57rem;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);}
+.flow__name{font-family:var(--sans);font-weight:600;font-size:.95rem;color:var(--midnight);margin:.25rem 0 .45rem;line-height:1.2;}
+.flow__fric{font-size:.8rem;color:var(--clay-2);line-height:1.42;}
+
+/* three-layer architecture stack */
+.arch{margin:2.2rem 0;display:flex;flex-direction:column;gap:.5rem;}
+.layer{background:var(--white);border:1px solid var(--line-light);border-radius:14px;padding:1.05rem 1.15rem;
+  box-shadow:0 16px 40px -34px rgba(11,41,66,.4);}
+.layer--found{background:linear-gradient(180deg,#fff,var(--paper-2));}
+.layer__h{display:flex;align-items:baseline;gap:.6rem;margin:0 0 .75rem;flex-wrap:wrap;}
+.layer__k{font-family:var(--mono);font-size:.57rem;letter-spacing:.14em;text-transform:uppercase;color:var(--steel);}
+.layer__t{font-family:var(--serif);font-weight:600;font-size:1.12rem;color:var(--midnight);margin:0;}
+.layer__d{font-size:.8rem;color:var(--slate);margin:0 0 0 auto;font-style:italic;}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;}
+.chip{font-family:var(--mono);font-size:.68rem;letter-spacing:.01em;color:var(--ink);background:var(--paper);
+  border:1px solid var(--line-light);border-radius:999px;padding:.32rem .72rem;line-height:1.3;}
+.chip--c{border-color:rgba(41,181,232,.5);background:rgba(41,181,232,.08);color:var(--steel);font-weight:600;}
+.chip--k{border-color:rgba(217,119,87,.5);background:rgba(217,119,87,.08);color:var(--clay-2);font-weight:600;}
+.arch__up{display:flex;justify-content:center;align-items:center;gap:.6rem;color:var(--cyan);margin:.05rem 0;}
+.arch__up svg{width:16px;height:16px;stroke:var(--cyan);fill:none;stroke-width:2;}
+.arch__up span{font-family:var(--mono);font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mist-dim);}
+
+/* interactive work-queue prototype */
+.proto{margin:2.2rem 0;border:1px solid var(--line-light);border-radius:16px;overflow:hidden;background:var(--paper-2);
+  box-shadow:0 28px 64px -36px rgba(11,41,66,.55);}
+.proto__bar{display:flex;align-items:center;gap:.7rem;background:var(--midnight);color:var(--mist);padding:.7rem 1.1rem;
+  font-family:var(--mono);font-size:.64rem;letter-spacing:.09em;text-transform:uppercase;}
+.proto__bar .dot{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 9px 1px rgba(41,181,232,.7);flex:none;}
+.proto__bar b{color:var(--white);font-weight:600;}
+.proto__bar .spacer{margin-left:auto;color:var(--mist-dim);text-transform:none;letter-spacing:.04em;}
+.queue{padding:1rem;display:grid;gap:.8rem;}
+.qcard{background:var(--white);border:1px solid var(--line-light);border-radius:13px;padding:1rem 1.1rem;
+  display:grid;grid-template-columns:auto 1fr auto;gap:.55rem 1rem;align-items:start;}
+.qcard__rank{font-family:var(--serif);font-weight:600;font-size:1.1rem;color:var(--cyan);width:2rem;height:2rem;
+  display:grid;place-items:center;border:1.5px solid var(--cyan);border-radius:9px;background:rgba(41,181,232,.06);}
+.qcard__main{min-width:0;}
+.qcard__type{font-family:var(--mono);font-size:.57rem;letter-spacing:.1em;text-transform:uppercase;color:var(--clay);margin:0 0 .28rem;}
+.qcard__who{margin:0;font-size:1rem;color:var(--midnight);font-weight:600;line-height:1.3;}
+.qcard__who span{font-weight:400;color:var(--slate);font-size:.9rem;}
+.qcard__meta{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0 .55rem;}
+.pill{font-family:var(--mono);font-size:.62rem;letter-spacing:.02em;border-radius:999px;padding:.25rem .62rem;
+  border:1px solid var(--line-light);background:var(--paper);color:var(--ink);}
+.pill b{color:var(--midnight);font-weight:700;}
+.pill--score b{color:var(--steel);}
+.pill--val b{color:var(--clay-2);}
+.qcard__ctx{font-size:.86rem;color:var(--slate);line-height:1.5;margin:0;}
+.qcard__ctx b{color:var(--ink);font-weight:600;}
+.qcard__side{display:flex;flex-direction:column;align-items:stretch;gap:.4rem;min-width:150px;}
+.qbtn{font-family:var(--mono);font-size:.64rem;letter-spacing:.05em;text-transform:uppercase;border:0;cursor:pointer;
+  border-radius:9px;padding:.62rem .8rem;background:var(--cyan);color:var(--midnight);font-weight:700;
+  transition:background .2s,transform .2s;text-align:center;}
+.qbtn:hover{background:var(--cyan-soft);transform:translateY(-1px);}
+.qbtn--ghost{background:transparent;border:1px solid var(--line-light);color:var(--steel);font-weight:600;}
+.qbtn--ghost:hover{background:var(--paper);transform:none;}
+.qcard__exp{grid-column:1 / -1;border-top:1px dashed var(--line-light);margin-top:.25rem;padding-top:.75rem;display:none;}
+.qcard.is-open .qcard__exp{display:block;}
+.qcard__exp .tt{font-family:var(--mono);font-size:.57rem;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin:0 0 .45rem;}
+.qcard__exp ul{margin:0;}
+.qcard__exp li{font-size:.87rem;margin-bottom:.4rem;}
+.draft{font-family:var(--mono);font-size:.78rem;line-height:1.6;color:var(--ink);background:var(--paper);
+  border:1px solid var(--line-light);border-radius:9px;padding:.8rem .9rem;white-space:pre-wrap;}
+.draft .subj{color:var(--steel);font-weight:700;}
+
+/* zoom meeting mock */
+.proto.is-meeting .queue{display:none;}
+.zoom{display:none;}
+.proto.is-meeting .zoom{display:block;}
+.zoom__stage{background:#0a1722;display:grid;grid-template-columns:1fr 290px;}
+.zoom__tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px;align-content:start;}
+.tile{aspect-ratio:4/3;border-radius:10px;position:relative;overflow:hidden;display:grid;place-items:center;
+  border:1px solid rgba(194,214,227,.14);}
+.tile--you{background:radial-gradient(120% 120% at 30% 20%,#15567f,#0b2942);}
+.tile--cust{background:radial-gradient(120% 120% at 70% 20%,#1f6f57,#0a2230);}
+.tile__av{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-family:var(--serif);
+  font-weight:700;color:#fff;font-size:1.2rem;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);}
+.tile__name{position:absolute;left:8px;bottom:8px;font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:#fff;
+  background:rgba(0,0,0,.45);padding:.18rem .45rem;border-radius:5px;}
+.zoom__panel{background:#0e2233;border-left:1px solid rgba(194,214,227,.14);padding:15px 16px;}
+.zoom__panel h4{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);
+  margin:0 0 .3rem;display:flex;align-items:center;gap:.45rem;}
+.zoom__panel .who{font-size:.78rem;color:var(--mist-dim);margin:0 0 .85rem;font-family:var(--mono);}
+.zoom__panel ul{margin:0;list-style:none;padding:0;}
+.zoom__panel li{color:var(--mist);font-size:.82rem;line-height:1.45;padding-left:1rem;position:relative;margin-bottom:.6rem;}
+.zoom__panel li::before{content:"";position:absolute;left:0;top:.5em;width:.42rem;height:.42rem;border-radius:1px;
+  background:var(--cyan);transform:rotate(45deg);}
+.zoom__ctrl{display:flex;align-items:center;gap:.7rem;background:#070f17;padding:.7rem 1rem;border-top:1px solid rgba(194,214,227,.12);}
+.zoom__ctrl .live{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:#7FD3F2;
+  display:flex;align-items:center;gap:.45rem;}
+.zoom__ctrl .live::before{content:"";width:8px;height:8px;border-radius:50%;background:#34d399;box-shadow:0 0 8px #34d399;}
+.zoom__ctrl .muted{font-family:var(--mono);font-size:.58rem;letter-spacing:.06em;color:var(--mist-dim);}
+.zoom__back{margin-left:auto;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;
+  border:1px solid rgba(194,214,227,.22);background:transparent;color:var(--mist);cursor:pointer;border-radius:8px;padding:.5rem .85rem;
+  transition:border-color .2s,color .2s;}
+.zoom__back:hover{border-color:var(--cyan);color:#fff;}
+@media (max-width:680px){
+  .qcard{grid-template-columns:auto 1fr;}
+  .qcard__side{grid-column:1 / -1;flex-direction:row;flex-wrap:wrap;}
+  .qbtn{flex:1 1 auto;}
+  .zoom__stage{grid-template-columns:1fr;}
+  .zoom__panel{border-left:0;border-top:1px solid rgba(194,214,227,.14);}
+}
+
+/* ============================================================ AUTHOR === */
+.author{background:
+    radial-gradient(80% 120% at 100% 0%,rgba(41,181,232,.14),transparent 55%),
+    var(--midnight);}
+.author__wrap{max-width:var(--read);margin-inline:auto;}
+.author__card{display:flex;gap:1.4rem;align-items:flex-start;flex-wrap:wrap;}
+.author__mono{width:62px;height:62px;border-radius:14px;background:var(--midnight-2);border:1px solid var(--line-dark);
+  display:grid;place-items:center;font-family:var(--serif);font-weight:700;color:var(--cyan);font-size:1.5rem;flex:none;}
+.author__name{font-family:var(--serif);font-weight:600;color:var(--white);font-size:1.4rem;margin:0;}
+.author__role{font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;color:var(--cyan);margin:.35rem 0 0;text-transform:uppercase;}
+.author__bio{color:var(--mist);font-size:1rem;line-height:1.6;margin:1rem 0 0;max-width:58ch;}
+.author__links{margin:1.6rem 0 0;display:flex;flex-wrap:wrap;gap:.8rem 1rem;}
+.clink{display:inline-flex;align-items:center;gap:.6rem;border:1px solid var(--line-dark);border-radius:999px;
+  padding:.65rem 1.2rem;font-family:var(--mono);font-size:.78rem;letter-spacing:.04em;color:var(--mist);
+  transition:border-color .3s,color .3s,background .3s,transform .3s var(--ease);}
+.clink:hover{border-color:var(--cyan);color:var(--white);background:rgba(41,181,232,.08);transform:translateY(-2px);}
+.clink svg{width:15px;height:15px;stroke:var(--cyan);fill:none;stroke-width:1.6;}
+
+/* ---- sources / footnotes ---- */
+.sources{max-width:var(--read);margin-inline:auto;margin-top:2.6rem;padding-top:1.6rem;border-top:1px solid var(--line-dark);}
+.sources h4{font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan-soft);margin:0 0 1rem;}
+.sources ol{margin:0;padding-left:1.2rem;}
+.sources li{font-size:.82rem;line-height:1.55;color:var(--mist-dim);margin-bottom:.55rem;}
+.sources a{color:var(--cyan-soft);border-bottom:1px solid rgba(127,211,242,.3);}
+.sources a:hover{color:var(--white);}
+.disclaimer{max-width:var(--read);margin:1.6rem auto 0;font-family:var(--mono);font-size:.7rem;
+  letter-spacing:.04em;color:var(--mist-dim);line-height:1.7;}
+
+.footer{
+  max-width:var(--wrap);margin:clamp(3rem,6vw,5rem) auto 0;padding-top:1.6rem;border-top:1px solid var(--line-dark);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mist-dim);
+}
+.footer a{color:var(--cyan-soft);}
+
+/* ============================================================ REVEAL ==== */
+.reveal{opacity:0;transform:translateY(26px);}
+.reveal.is-in{opacity:1;transform:none;transition:opacity .8s var(--ease),transform .8s var(--ease);}
+
+/* ============================================================ RESPONSIVE = */
+@media (max-width:680px){
+  .nav__links{gap:.9rem;}
+  .byline{gap:.4rem .8rem;}
+}
+
+/* ============================================================ A11Y ====== */
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important;scroll-behavior:auto !important;}
+  .reveal{opacity:1 !important;transform:none !important;}
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<!-- shared arrowheads for all diagrams -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ahC" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#29B5E8"/></marker>
+  <marker id="ahM" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8AA6BC"/></marker>
+  <marker id="ahK" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#D97757"/></marker>
+</defs></svg>
+
+<!-- ================================================================ NAV -->
+<header class="nav" id="nav">
+  <a class="nav__mark" href="https://wenlongsong.github.io/data-science/introduction.html" aria-label="Wenlong Song — home">
+    Data + AI = <b>&#8734;</b>
+  </a>
+  <nav aria-label="Article navigation">
+    <ul class="nav__links">
+      <li class="nav__dd-wrap">
+        <button class="nav__dd-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+          All Articles <span class="caret" aria-hidden="true"></span>
+        </button>
+        <ul class="nav__dd" role="menu" aria-label="All articles">
+          <li><a href="https://wenlongsong.github.io/data-science/articles/need-centric-targeting-framework.html" role="menuitem"><span class="dd-n">01</span> The Need-Centric Targeting Framework</a></li>
+          <li><a class="is-current" href="#top" aria-current="page" role="menuitem"><span class="dd-n">02</span> An AI-Powered Sales Intelligence Framework</a></li>
+          <li><a href="#" role="menuitem"><span class="dd-n">03</span> From Voice-of-Customer to a Product Roadmap</a></li>
+          <li><a href="#" role="menuitem"><span class="dd-n">04</span> Re-platforming a Data-Science Org Around Agents</a></li>
+          <li><a href="#" role="menuitem"><span class="dd-n">05</span> One Funnel, Causal Answers: Measuring GTM</a></li>
+        </ul>
+      </li>
+      <li class="nav__back"><a class="back" href="https://wenlongsong.github.io/data-science/introduction.html">&larr; Back to Home</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- right section-nav rail (scrollspy) -->
+<nav class="rail" id="rail" aria-label="On this page">
+  <ul>
+    <li><a href="#problem"><span class="rail__t">The Friction</span><span class="rail__dot"></span></a></li>
+    <li><a href="#frictions"><span class="rail__t">Key Frictions</span><span class="rail__dot"></span></a></li>
+    <li><a href="#framework"><span class="rail__t">The Framework</span><span class="rail__dot"></span></a></li>
+    <li><a href="#architecture"><span class="rail__t">Architecture</span><span class="rail__dot"></span></a></li>
+    <li><a href="#asf"><span class="rail__t">Account Scoring</span><span class="rail__dot"></span></a></li>
+    <li><a href="#queue"><span class="rail__t">Work Queue</span><span class="rail__dot"></span></a></li>
+    <li><a href="#close"><span class="rail__t">Where to Start</span><span class="rail__dot"></span></a></li>
+  </ul>
+</nav>
+
+<main id="top">
+
+<!-- =============================================================== HERO -->
+<article>
+<section class="spread spread--dark hero">
+  <div class="lattice" aria-hidden="true">
+    <svg class="l-tr" viewBox="0 0 200 200" fill="none">
+      <g stroke="#29B5E8" stroke-width="1" opacity=".5">
+        <path d="M100 10 L160 45 L160 115 L100 150 L40 115 L40 45 Z"/>
+        <path d="M100 10 L100 150 M40 45 L160 115 M160 45 L40 115"/>
+        <circle cx="100" cy="80" r="46"/>
+      </g>
+    </svg>
+  </div>
+  <div class="wrap hero__wrap">
+    <p class="kicker">Go-to-Market &middot; Data Science <span class="tagpill">B2B Software</span> <span class="tagpill">Seller Productivity</span></p>
+    <h1 class="art-title">Sellers spend most of the week <em>not selling</em>.<br>Here&rsquo;s the intelligence layer that gives it back.</h1>
+    <p class="art-dek">
+      Across B2B software, reps spend under a third of their time in front of customers &mdash; the rest
+      drains into prospecting, research, CRM, and prep. An <b style="color:var(--white)">AI-powered Sales
+      Intelligence Framework</b> attacks both sides at once: it strips out the non-customer-facing work
+      <em>and</em> points every seller at the right account, the right person, and the right pitch &mdash;
+      lifting win rate, not just saving time.
+    </p>
+    <div class="byline">
+      <span><b>Wenlong Song</b></span><span class="sep"></span>
+      <span>Head of Mid-Market Data Science, Intuit</span><span class="sep"></span>
+      <span>June 2026</span><span class="sep"></span>
+      <span>~16 min read</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ BODY ==== -->
+<section class="spread spread--light article">
+  <div class="prose">
+
+    <!-- intro + TLDR -->
+    <div class="sec sec--first reveal">
+      <p class="lead">
+        There are only two ways to grow a sales number: add more selling capacity, or make the capacity you
+        already have convert better. Most organizations reach for the first. The cheaper, faster lever is the
+        second &mdash; and it&rsquo;s hiding in plain sight, in the majority of the week your sellers spend
+        <em>not selling</em>.
+      </p>
+      <p>
+        A seller&rsquo;s job, in theory, is to talk to customers. In practice, the day is dominated by
+        everything <em>around</em> the conversation: deciding who to call, stitching together an account&rsquo;s
+        story across five tabs, hunting for the right contact, writing the follow-up, logging it all in the CRM.
+        That work is necessary, but it isn&rsquo;t selling &mdash; and it&rsquo;s where the hours go.
+      </p>
+      <p>
+        Over the last few years I&rsquo;ve built the system that takes that work back. Not a chatbot bolted onto
+        the CRM, but a layered <strong>Sales Intelligence Framework</strong> that decides what matters, explains
+        why, and delivers it inside the tools sellers already use. This is how it&rsquo;s built &mdash; and why
+        it moves win rate, not just minutes.
+      </p>
+
+      <div class="tldr">
+        <p class="tldr__h">Here&rsquo;s what you&rsquo;ll learn</p>
+        <ul>
+          <li>Why the average B2B seller spends <b>under a third of the week</b> actually selling &mdash; and the specific frictions, stage by stage, that eat the rest.</li>
+          <li>A single <b>AI-powered Sales Intelligence Framework</b> that removes non-customer-facing work and raises win rate <em>at the same time</em>.</li>
+          <li>Its three layers &mdash; <b>Data Foundation &rarr; Intelligence Engine &rarr; Seller-facing Tools</b> &mdash; and why the intelligence has to live <em>inside</em> the seller&rsquo;s stack.</li>
+          <li>How an <b>Account Scoring Framework</b> goes beyond a propensity score to tell a rep <em>what</em> to sell, <em>how much</em> it&rsquo;s worth, <em>why</em>, and <em>how</em> &mdash; and how it bends to business priorities.</li>
+          <li>What a fully <b>autonomous work queue</b> looks like &mdash; a working prototype &mdash; and the one thing standing between us and it: <em>tool integration</em>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 1. The friction -->
+    <div class="sec reveal" id="problem">
+      <p class="h-sec">01 &middot; The problem</p>
+      <h2>The most expensive thing in sales is a seller not selling</h2>
+      <p>
+        Start with the number that should bother every revenue leader: in
+        <a class="ref" href="https://www.salesforce.com/news/stories/sales-research-2023/" target="_blank" rel="noopener noreferrer">Salesforce&rsquo;s State of Sales</a>
+        research, reps report spending <strong>under 30% of their time actually selling.</strong> The other
+        70% &mdash; prospecting research, data entry, internal meetings, prep, follow-up coordination &mdash; is
+        overhead. You are paying a fully loaded sales team to spend two days out of three on work that, done
+        differently, a system could do for them.
+      </p>
+      <p>
+        And it isn&rsquo;t spread evenly. The friction clusters at specific points along the seller&rsquo;s
+        workflow. Walk the journey end to end and the same pattern repeats: at each hand-off, the seller stops
+        to <em>find</em>, <em>research</em>, <em>assemble</em>, or <em>re-enter</em> something a machine already
+        knows.
+      </p>
+
+      <figure class="fig reveal">
+        <div class="flow" role="list" aria-label="Friction at each stage of the B2B seller workflow">
+          <div class="flow__stage" role="listitem"><p class="flow__n">Stage 01</p><p class="flow__name">Identify a Prospect / Receive a Lead</p><p class="flow__fric">Fragmented, unreliable data; leads arrive with no priority &mdash; &ldquo;who&rsquo;s worth my time?&rdquo;</p></div>
+          <div class="flow__stage" role="listitem"><p class="flow__n">Stage 02</p><p class="flow__name">Pre-call Prep</p><p class="flow__fric">Blank-page research across five tabs to reconstruct one account&rsquo;s story.</p></div>
+          <div class="flow__stage" role="listitem"><p class="flow__n">Stage 03</p><p class="flow__name">Discovery Call</p><p class="flow__fric">Generic discovery; rediscovering by hand what the data already knows.</p></div>
+          <div class="flow__stage" role="listitem"><p class="flow__n">Stage 04</p><p class="flow__name">Demo</p><p class="flow__fric">Hand-built, one-size-fits-all demo not tailored to the account&rsquo;s situation.</p></div>
+          <div class="flow__stage" role="listitem"><p class="flow__n">Stage 05</p><p class="flow__name">Propose</p><p class="flow__fric">Slow, manual quote assembly across disconnected tools and rigid rules.</p></div>
+          <div class="flow__stage" role="listitem"><p class="flow__n">Stage 06</p><p class="flow__name">Sign Contract</p><p class="flow__fric">Redlines, approvals, and admin ping-pong between systems.</p></div>
+          <div class="flow__stage" role="listitem"><p class="flow__n">Stage 07</p><p class="flow__name">Order</p><p class="flow__fric">Manual order entry and hand-offs; contracts signed but not provisioned.</p></div>
+          <div class="flow__stage" role="listitem"><p class="flow__n">Stage 08</p><p class="flow__name">Post-sales</p><p class="flow__fric">Reps doing success managers&rsquo; jobs; messy onboarding hand-off, no signal back.</p></div>
+        </div>
+        <figcaption><b>Figure 1.</b> The friction map. At every stage the seller pauses to find, research, assemble, or re-enter what a system already knows &mdash; the tax that turns a selling week into a non-selling one.</figcaption>
+      </figure>
+      <p>
+        None of these stages is broken in isolation. The problem is cumulative: a hundred small frictions,
+        repeated across every account and every rep, every week. That is why the answer can&rsquo;t be one
+        clever tool &mdash; it has to be a <em>layer</em> that runs underneath the entire workflow.
+      </p>
+    </div>
+
+    <!-- 2. Key frictions -->
+    <div class="sec reveal" id="frictions">
+      <p class="h-sec">02 &middot; The diagnosis</p>
+      <h2>Key frictions affecting seller productivity</h2>
+      <p>
+        Pull together the external research and what I&rsquo;ve seen inside a large mid-market sales org, and
+        the drains on productivity collapse into a short, stubborn list. These are the things that actually move
+        the needle &mdash; or, today, block it:
+      </p>
+      <ul>
+        <li><strong>The time tax.</strong> Under a third of the week is customer-facing; the rest is admin, prep, and prospecting. The single biggest lever in the whole function is simply <em>giving that time back</em>.</li>
+        <li><strong>Tool sprawl &amp; context-switching.</strong> Sellers hop across a stack of disconnected systems &mdash; CRM, engagement, dialer, marketing, data vendors. Every switch is lost context and a chance for the data to disagree with itself.</li>
+        <li><strong>Blank-page prep &amp; manual prospecting.</strong> Deciding <em>who</em> to work and reconstructing <em>why</em> is done by hand, account by account, with no prioritization underneath it.</li>
+        <li><strong>Slow follow-up.</strong> Speed-to-lead is decisive &mdash; the first credible responder wins a wildly disproportionate share &mdash; yet follow-up is manual and easily dropped.</li>
+        <li><strong>Generic messaging.</strong> One pitch for everyone. The best reps tailor to the account&rsquo;s specific need; most don&rsquo;t have the time, so resonance suffers and win rate plateaus.</li>
+        <li><strong>Admin &amp; CRM drag.</strong> Note-taking and data entry are consistently named the most time-consuming tasks in the job &mdash; and they produce no revenue.</li>
+        <li><strong>Broken hand-offs.</strong> Signed contracts stall before provisioning; onboarding is misaligned; the seller never gets a clean signal back to expand the account.</li>
+      </ul>
+      <p>
+        The consequences show up in the numbers. Per the
+        <a class="ref" href="https://benchmarks.ebsta.com/2025-gtm-benchmarks" target="_blank" rel="noopener noreferrer">2025 Ebsta &times; Pavilion GTM Benchmarks</a>,
+        win rates have slid to <strong>19%</strong> (from 29% the prior year), and a startling <strong>14% of
+        sellers now drive 80% of revenue.</strong> That isn&rsquo;t a talent gap &mdash; it&rsquo;s a leverage
+        gap. The top performers have figured out how to spend their hours on the right accounts with the right
+        message. The framework&rsquo;s job is to hand that leverage to everyone.
+      </p>
+
+      <div class="stats">
+        <div class="stat">
+          <p class="stat__n"><b>&lt;30%</b></p>
+          <p class="stat__l">of a B2B rep&rsquo;s week is spent actually selling; ~70% is non-customer-facing overhead.</p>
+          <p class="stat__s">Salesforce &middot; State of Sales</p>
+        </div>
+        <div class="stat">
+          <p class="stat__n">19%</p>
+          <p class="stat__l">average win rate in 2025 &mdash; down from <b>29%</b> a year earlier.</p>
+          <p class="stat__s">Ebsta &times; Pavilion &middot; 2025 GTM Benchmarks</p>
+        </div>
+        <div class="stat">
+          <p class="stat__n">14%</p>
+          <p class="stat__l">of sellers generate <b>80%</b> of revenue &mdash; an 11&times; top-to-bottom performance gap.</p>
+          <p class="stat__s">Ebsta &times; Pavilion &middot; 2025 GTM Benchmarks</p>
+        </div>
+      </div>
+      <p>
+        Here&rsquo;s the encouraging part. The same research that diagnoses the problem also sizes the prize:
+        McKinsey estimates generative AI could unlock
+        <a class="ref" href="https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/an-unconstrained-future-how-generative-ai-could-reshape-b2b-sales" target="_blank" rel="noopener noreferrer">$0.8&ndash;1.2 trillion</a>
+        in sales-and-marketing productivity, and sellers who use AI frequently report meaningfully higher
+        revenue per rep
+        (<a class="ref" href="https://www.gong.io/blog/the-best-sales-insights-of-2025" target="_blank" rel="noopener noreferrer">Gong</a>).
+        The opportunity is real. The question is <em>architecture</em>: what do you actually build?
+      </p>
+    </div>
+
+    <!-- 3. Enter the framework -->
+    <div class="sec reveal" id="framework">
+      <p class="h-sec">03 &middot; The answer</p>
+      <h2>One framework, aimed at both halves of the problem</h2>
+      <p>
+        Most &ldquo;AI for sales&rdquo; initiatives pick one friction and build a point solution: a better
+        dialer, a smarter content tool, a forecasting model. Useful, but they add to the tool sprawl they were
+        meant to cure. The framework takes the opposite stance: <strong>a single intelligence layer that runs
+        under the whole workflow,</strong> mapping each friction to the capability that dissolves it.
+      </p>
+      <p>
+        The design goal is deliberately two-sided. Every capability has to do <em>both</em> jobs &mdash;
+        <strong>remove non-customer-facing work</strong> and <strong>improve the odds of winning.</strong> A
+        feature that saves time but doesn&rsquo;t lift win rate is a convenience; a feature that lifts win rate
+        but costs the seller an hour is a tax. We only ship the ones that do both.
+      </p>
+
+      <div class="vtbl">
+        <table>
+          <thead><tr><th>Seller friction</th><th>What the framework does</th><th>The payoff</th></tr></thead>
+          <tbody>
+            <tr><td><b>Fragmented, unreliable data</b></td><td>A unified <b>Data Foundation</b> &mdash; one enriched profile per account and contact</td><td class="need">No more stitching tabs</td></tr>
+            <tr><td><b>&ldquo;Who do I work?&rdquo;</b></td><td>Lead &amp; Account Scoring rank by propensity &times; value</td><td class="need">Hours go to the highest-yield targets</td></tr>
+            <tr><td><b>Blank-page prep</b></td><td>An <b>Intelligence Card</b> pre-assembles the account&rsquo;s story, recommendation &amp; reasons</td><td class="need">Prep collapses to seconds</td></tr>
+            <tr><td><b>Generic pitch</b></td><td>Talk tracks generated per account&ndash;product pair</td><td class="need">Every rep runs the best rep&rsquo;s motion</td></tr>
+            <tr><td><b>&ldquo;Who do I call?&rdquo;</b></td><td><b>Contact Intelligence</b> ranks the right persona &amp; person</td><td class="need">Multi-thread to the decision-maker</td></tr>
+            <tr><td><b>Slow / dropped follow-up</b></td><td>An <b>Automated Work Queue</b> sequences the next best action</td><td class="need">Speed-to-lead; nothing slips</td></tr>
+            <tr><td><b>Admin &amp; CRM drag</b></td><td>Embedded tools auto-draft email and capture activity</td><td class="need">Hours/week of admin returned</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        That mapping is the whole thesis in one table. The rest of this article is how it&rsquo;s actually
+        built &mdash; because the difference between a slide like this and a system that sellers open every
+        morning is entirely in the architecture.
+      </p>
+    </div>
+
+    <!-- 4. Architecture: three layers -->
+    <div class="sec reveal" id="architecture">
+      <p class="h-sec">04 &middot; The architecture</p>
+      <h2>Three layers: foundation, engine, and the seller&rsquo;s surface</h2>
+      <p>
+        The framework is built in three layers, and the order matters. Each layer is useless without the one
+        beneath it and invisible without the one above it. Data with no intelligence is a warehouse no one
+        reads; intelligence with no surface is a dashboard no one opens.
+      </p>
+
+      <figure class="fig reveal">
+        <div class="arch">
+          <div class="layer">
+            <div class="layer__h"><span class="layer__k">Layer 3</span><p class="layer__t">Seller-Facing Tools</p><span class="layer__d">embedded where sellers already work</span></div>
+            <div class="chips">
+              <span class="chip chip--c">Prospecting App</span>
+              <span class="chip chip--c">Intelligence Card</span>
+              <span class="chip chip--c">Automated Work Queue</span>
+              <span class="chip chip--c">Email Drafting</span>
+              <span class="chip chip--c">Demo Content Creation</span>
+              <span class="chip">in Salesforce</span>
+              <span class="chip">Marketo</span>
+              <span class="chip">Amazon Connect</span>
+              <span class="chip">Sell</span>
+            </div>
+          </div>
+          <div class="arch__up" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span>serves</span></div>
+          <div class="layer">
+            <div class="layer__h"><span class="layer__k">Layer 2</span><p class="layer__t">Intelligence Engine</p><span class="layer__d">turns data into a decision</span></div>
+            <div class="chips">
+              <span class="chip chip--k">Lead Scoring Framework</span>
+              <span class="chip chip--k">Account Scoring Framework</span>
+              <span class="chip chip--k">Contact Intelligence</span>
+            </div>
+          </div>
+          <div class="arch__up" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span>feeds</span></div>
+          <div class="layer layer--found">
+            <div class="layer__h"><span class="layer__k">Layer 1</span><p class="layer__t">Data Foundation</p><span class="layer__d">one source of truth</span></div>
+            <div class="chips">
+              <span class="chip">Firmographics</span>
+              <span class="chip">Product usage</span>
+              <span class="chip">3rd-party tool usage</span>
+              <span class="chip">Competitor usage</span>
+              <span class="chip">Voice of Customer</span>
+              <span class="chip">Purchase intent</span>
+              <span class="chip">Key personnel change</span>
+              <span class="chip">Business-need change (M&amp;A, investment)</span>
+              <span class="chip">Contact role / title</span>
+              <span class="chip">Contact product usage</span>
+              <span class="chip">Marketing &amp; sales engagement history</span>
+            </div>
+          </div>
+        </div>
+        <figcaption><b>Figure 2.</b> The three-layer stack. Data flows up &mdash; the <b>Data Foundation</b> feeds the <b>Intelligence Engine</b>, which serves the <b>Seller-Facing Tools</b> embedded in the existing stack.</figcaption>
+      </figure>
+
+      <h3>Layer 1 &mdash; the Data Foundation</h3>
+      <p>
+        Everything starts with one well-governed source of truth, enriched at two grains. At the
+        <strong>company/account level</strong>: firmographics; first-party product usage; third-party tool and
+        <em>competitor</em>-product usage; Voice of Customer; purchase intent; and the high-value change signals
+        that predict a buying window &mdash; a <strong>key personnel change</strong> (a new CFO), or a
+        <strong>key business-need change</strong> (a new investment, an acquisition, a move into a new market).
+        At the <strong>user/contact level</strong>: role and title, individual product usage, and the full
+        history of how that person has engaged with marketing and sales. Get this layer right and the models
+        above it get simple; get it wrong and no amount of modeling saves you.
+      </p>
+
+      <h3>Layer 2 &mdash; the Intelligence Engine</h3>
+      <p>
+        This is where data becomes a decision. Three models, each answering a different question:
+      </p>
+      <ul>
+        <li><strong>Lead Scoring Framework</strong> &mdash; for inbound and marketing-sourced contacts: <em>which leads are worth a seller&rsquo;s time, now?</em> It blends account propensity, contact-level engagement, and behavioral signals to rank and route leads instead of dumping them, undifferentiated, into a queue.</li>
+        <li><strong>Account Scoring Framework</strong> &mdash; for the outbound/install-base motion: <em>which accounts should I work, for which product, and why?</em> This is the centerpiece, and it earns its own section below.</li>
+        <li><strong>Contact Intelligence</strong> &mdash; once you&rsquo;ve picked the account: <em>who inside it do I actually call?</em> It predicts each contact&rsquo;s persona (C-suite, finance, accountant&hellip;) and the likelihood they&rsquo;ll engage, so reps reach the decision-maker instead of the first email they find. Multi-threading to the right people is one of the strongest known win-rate levers &mdash; Ebsta finds engaging six or more stakeholders early can lift win rate from ~12% to 40%+.</li>
+      </ul>
+
+      <h3>Layer 3 &mdash; Seller-Facing Tools</h3>
+      <p>
+        Intelligence only counts if it reaches the seller without friction &mdash; so it ships <em>inside</em>
+        the tools they already live in (Salesforce, Marketo, Amazon Connect, Sell), never as a separate
+        dashboard to remember to check:
+      </p>
+      <ul>
+        <li><strong>Prospecting App</strong> &mdash; the ranked list of leads and accounts to work, with filters and one-click actions.</li>
+        <li><strong>Intelligence Card</strong> &mdash; the account&rsquo;s story on one card: key attributes, the product recommendation <em>and its reasoning</em>, a talk track, and contact intelligence &mdash; surfaced on the account, lead, and opportunity pages.</li>
+        <li><strong>Automated Work Queue</strong> &mdash; the sequenced next-best-action list (its own section below).</li>
+        <li><strong>Email Drafting</strong> &mdash; personalized outreach drafted from the account&rsquo;s signals, ready to review and send.</li>
+        <li><strong>Demo Content Creation</strong> &mdash; tailored demo material assembled from the recommendation, so the demo speaks to <em>this</em> account&rsquo;s situation.</li>
+      </ul>
+    </div>
+
+    <!-- 5. Deep dive: Account Scoring Framework -->
+    <div class="sec reveal" id="asf">
+      <p class="h-sec">05 &middot; Deep dive</p>
+      <h2>From a score to a framework</h2>
+      <p>
+        Most organizations already have an account-propensity model. It outputs a number: <em>this account is
+        an 0.84.</em> Useful &mdash; a ranked list beats a random one &mdash; but a number alone leaves the
+        seller to answer every question that actually matters. A propensity <em>score</em> tells you
+        <em>who</em> is hot. A scoring <strong>framework</strong> tells you what to do about it.
+      </p>
+      <p>
+        That distinction is the entire point of the <strong>Account Scoring Framework</strong>. For every
+        account it produces not one output but five: a calibrated <strong>score</strong>, the
+        <strong>best product to sell next</strong>, the <strong>potential value</strong> of that sale, the
+        <strong>reason why</strong> (the signals behind the call), and the <strong>talk track</strong> for how
+        to open the conversation. And because it&rsquo;s a framework rather than a single model, it can bend to
+        <strong>business priorities</strong> &mdash; if the company strategically wants to push one product over
+        another this quarter, the framework weighs that in when it picks the recommendation.
+      </p>
+
+      <div class="cmp cmp3">
+        <table>
+          <thead>
+            <tr><th>Dimension</th><th>Traditional propensity model</th><th>Account Scoring Framework</th></tr>
+          </thead>
+          <tbody>
+            <tr><th>Output</th><td>A single number</td><td><b>Five</b> outputs: score + reason + product + value + talk track</td></tr>
+            <tr><th>What to sell</th><td>&mdash;</td><td><b>Best next product</b>, ranked across the portfolio</td></tr>
+            <tr><th>How much</th><td>&mdash;</td><td><b>Potential value</b> (expected incremental revenue)</td></tr>
+            <tr><th>Why</th><td>Opaque</td><td><b>Key signals</b> behind the call &mdash; explainable</td></tr>
+            <tr><th>How</th><td>&mdash;</td><td><b>Talk track</b> tuned to the account&rsquo;s situation</td></tr>
+            <tr><th>Business strategy</th><td>Fixed</td><td><b>Bends to priorities</b> (push product A over B)</td></tr>
+            <tr><th>Seller gets</th><td>A number in a report</td><td><b>Guidance</b> in the workflow</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>How it&rsquo;s built</h3>
+      <p>
+        The architecture is what makes those five outputs trustworthy and consistent. Rather than one monolithic
+        model, the framework is a pipeline that ends in a single standardized output every seller surface can
+        consume:
+      </p>
+      <ul>
+        <li><strong>Unified feature mart.</strong> One governed source of truth &mdash; firmographics, product-feature usage, competitor and third-party signals, in-product behavior &mdash; so every model downstream reads from the same place.</li>
+        <li><strong>Per-product propensity models.</strong> One model per product, each built by the team closest to that product&rsquo;s motion (a mix of gradient-boosted ML and transparent rule-based models). Modularity means a model can be improved or swapped without breaking anything downstream.</li>
+        <li><strong>The framework layer.</strong> The orchestration that turns many models into one answer: a <em>gatekeeper</em> that holds every model to standards on accuracy and explainability; <em>cross-product ranking</em> that picks the best next product by expected incremental value when several compete; a <em>business-priority override</em> for strategic weighting; and an <em>LLM</em> that writes the talk track from the winning signals.</li>
+        <li><strong>Standardized output.</strong> Every account resolves to the same compact schema &mdash; <em>score &middot; key reason &middot; next-best product &middot; talk track</em> &mdash; refreshed daily and published once.</li>
+        <li><strong>Seller surfaces &amp; feedback loop.</strong> That output flows into the Intelligence Card, the Prospecting App, and campaign routing &mdash; and outcomes flow back to measure lift and retrain.</li>
+      </ul>
+
+      <figure class="fig reveal">
+        <div class="schematic">
+          <svg class="dia" viewBox="0 0 720 300" role="img" aria-label="Account Scoring Framework architecture. A unified feature mart feeds several per-product propensity models. Those feed a framework layer containing a gatekeeper, cross-product ranking by expected value, a business-priority override, and an LLM talk-track generator. The framework emits one standardized output — score, key reason, next-best product, and talk track — which flows to seller surfaces, whose outcomes feed back to the feature mart.">
+            <!-- feature mart -->
+            <rect class="node" x="16" y="118" width="120" height="64" rx="11"/>
+            <text class="txt" x="32" y="144">Unified</text><text class="txt" x="32" y="160">feature mart</text><text class="lbl" x="32" y="174">one source of truth</text>
+            <!-- propensity models stack -->
+            <path class="stroke-c" d="M136 150 H188" marker-end="url(#ahC)"/>
+            <rect class="node" x="190" y="86" width="150" height="30" rx="8"/><text class="txt" x="204" y="105">Product A model</text>
+            <rect class="node" x="190" y="122" width="150" height="30" rx="8"/><text class="txt" x="204" y="141">Product B model</text>
+            <rect class="node" x="190" y="158" width="150" height="30" rx="8"/><text class="txt" x="204" y="177">Product C model</text>
+            <rect class="node" x="190" y="194" width="150" height="30" rx="8"/><text class="lbl" x="204" y="213">&hellip; one per product</text>
+            <!-- framework layer -->
+            <path class="stroke-c" d="M340 150 H392" marker-end="url(#ahC)"/>
+            <rect class="node-c" x="394" y="74" width="166" height="152" rx="12"/>
+            <text class="ttl" x="410" y="96">FRAMEWORK LAYER</text>
+            <text class="txt-c" x="410" y="120">&middot; Gatekeeper</text>
+            <text class="txt-c" x="410" y="142">&middot; Cross-product rank</text>
+            <text class="lbl-c" x="420" y="156">by expected value</text>
+            <text class="txt-k" x="410" y="180">&middot; Business override</text>
+            <text class="txt-c" x="410" y="204">&middot; LLM talk track</text>
+            <!-- outputs -->
+            <path class="stroke-c" d="M560 150 H600" marker-end="url(#ahC)"/>
+            <rect class="node-c" x="602" y="92" width="104" height="116" rx="11"/>
+            <text class="ttl" x="616" y="112" style="font-size:10.5px">OUTPUT</text>
+            <text class="txt-c" x="616" y="132">Score</text>
+            <text class="txt-c" x="616" y="152">Key reason</text>
+            <text class="txt-c" x="616" y="172">Next product</text>
+            <text class="txt-c" x="616" y="192">Talk track</text>
+            <!-- feedback loop -->
+            <path class="weak" d="M654 208 C654 268 76 268 76 190" marker-end="url(#ahM)"/>
+            <text class="lbl" x="300" y="284">outcomes feed back &mdash; measure lift, retrain</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 3.</b> The Account Scoring Framework. Many per-product models resolve, through one framework layer, into a single explainable output &mdash; <b>score, reason, product, talk track</b> &mdash; with outcomes looping back. <em>Schematic; component names simplified.</em></figcaption>
+      </figure>
+      <p>
+        The &ldquo;so what&rdquo; is simple. A propensity score makes a seller <em>faster at guessing.</em> The
+        framework removes the guess: it hands over the account, the product, the value, the reason, and the
+        opening line &mdash; which is exactly the prep work that used to eat the morning.
+      </p>
+    </div>
+
+    <!-- 6. Deep dive: Automated Work Queue -->
+    <div class="sec reveal" id="queue">
+      <p class="h-sec">06 &middot; Deep dive</p>
+      <h2>The Automated Work Queue &mdash; and the last mile</h2>
+      <p>
+        Stack the layers together and you get the most valuable seller-facing surface of all: a queue that
+        <em>assembles the seller&rsquo;s day for them.</em> The rep opens their laptop in the morning and the
+        intelligence has already decided what to do, in what order, and why &mdash; each item a single card with
+        a propensity score, the potential value, the context, the plan, and one button to act. This is the
+        ultimate form of the framework: not a report to interpret, but a <strong>sequence of actions to
+        execute.</strong>
+      </p>
+      <p>
+        Here&rsquo;s a working prototype. The queue is ordered by a blend of time-sensitivity and expected value
+        &mdash; the 8:00 AM meeting comes first because it&rsquo;s time-bound; the highest-scoring item can wait
+        because an email can be sent anytime. Open a card&rsquo;s plan, then start the top action:
+      </p>
+
+      <figure class="fig reveal">
+        <div class="proto" id="proto">
+          <div class="proto__bar">
+            <span class="dot" aria-hidden="true"></span>
+            <b>Your Work Queue</b> &nbsp;&middot;&nbsp; Tuesday, 8:00 AM
+            <span class="spacer">4 actions ready &middot; built overnight by the Intelligence Engine</span>
+          </div>
+
+          <div class="queue" aria-label="Automated work queue — sequenced next best actions">
+
+            <!-- Card 1 -->
+            <div class="qcard">
+              <div class="qcard__rank">1</div>
+              <div class="qcard__main">
+                <p class="qcard__type">8:00 AM &middot; Scheduled Zoom Meeting</p>
+                <p class="qcard__who">Jack Anderson <span>&mdash; CFO, ABC Construction</span></p>
+                <div class="qcard__meta">
+                  <span class="pill pill--score">Propensity <b>85</b></span>
+                  <span class="pill pill--val">Potential <b>~$20K</b></span>
+                  <span class="pill">Open opportunity</span>
+                </div>
+                <p class="qcard__ctx"><b>Context:</b> 3 prior touches. Last call (May 28): evaluating a move off spreadsheets for multi-entity consolidation; asked specifically about intercompany eliminations.</p>
+              </div>
+              <div class="qcard__side">
+                <button class="qbtn" type="button" data-start aria-label="Start Zoom meeting with Jack Anderson">Start Zoom Meeting</button>
+                <button class="qbtn qbtn--ghost" type="button" data-exp aria-expanded="false">View call plan</button>
+              </div>
+              <div class="qcard__exp">
+                <p class="tt">Call plan &middot; generated by the Account Scoring Framework</p>
+                <ul>
+                  <li>Open on the <b>consolidation pain</b> they named last call &mdash; not the product.</li>
+                  <li>Show multi-entity consolidation + <b>intercompany eliminations</b>.</li>
+                  <li>Quantify the <b>month-end close hours</b> saved.</li>
+                  <li>Confirm decision timeline and who else signs off (CFO + controller).</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="qcard">
+              <div class="qcard__rank">2</div>
+              <div class="qcard__main">
+                <p class="qcard__type">Call a new lead</p>
+                <p class="qcard__who">Mary Cooker <span>&mdash; CEO, ABC Manufacturing</span></p>
+                <div class="qcard__meta">
+                  <span class="pill pill--score">Propensity <b>81</b></span>
+                  <span class="pill pill--val">Potential <b>~$15K</b></span>
+                  <span class="pill">Inbound &middot; new lead</span>
+                </div>
+                <p class="qcard__ctx"><b>Why now:</b> Inbound demo request + high firmographic fit; rapid headcount growth signals they&rsquo;re outgrowing the entry tier.</p>
+              </div>
+              <div class="qcard__side">
+                <button class="qbtn" type="button" data-exp aria-expanded="false">Start the Call</button>
+                <button class="qbtn qbtn--ghost" type="button" data-exp aria-expanded="false">View talk track</button>
+              </div>
+              <div class="qcard__exp">
+                <p class="tt">Talk track &middot; new-lead, speed-to-lead</p>
+                <ul>
+                  <li>Acknowledge the growth; ask <b>what&rsquo;s breaking</b> as they scale.</li>
+                  <li>Tie advanced reporting + user roles to the scaling pain.</li>
+                  <li>Offer a tailored demo <b>this week</b> &mdash; respond while the request is warm.</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="qcard">
+              <div class="qcard__rank">3</div>
+              <div class="qcard__main">
+                <p class="qcard__type">Call a high-propensity prospect account</p>
+                <p class="qcard__who">Andy Lee <span>&mdash; Director, ABC Investment</span></p>
+                <div class="qcard__meta">
+                  <span class="pill pill--score">Propensity <b>77</b></span>
+                  <span class="pill pill--val">Potential <b>~$16K</b></span>
+                  <span class="pill">No open opportunity</span>
+                </div>
+                <p class="qcard__ctx"><b>Why now:</b> Heavy manual workflow + approaching the user-seat cap &mdash; a classic upgrade need. No opportunity open yet, so it&rsquo;s uncontested.</p>
+              </div>
+              <div class="qcard__side">
+                <button class="qbtn" type="button" data-exp aria-expanded="false">Start the Call</button>
+                <button class="qbtn qbtn--ghost" type="button" data-exp aria-expanded="false">View talk track</button>
+              </div>
+              <div class="qcard__exp">
+                <p class="tt">Talk track &middot; upgrade / expansion</p>
+                <ul>
+                  <li>Lead with the <b>seat-cap friction</b> the usage data shows.</li>
+                  <li>Map <b>workflow automation</b> to the manual approvals they run today.</li>
+                  <li>Propose a 20-minute working session to scope it.</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="qcard">
+              <div class="qcard__rank">4</div>
+              <div class="qcard__main">
+                <p class="qcard__type">Follow up to book a demo</p>
+                <p class="qcard__who">Alex Wolf <span>&mdash; Finance Manager, ABC Technology</span></p>
+                <div class="qcard__meta">
+                  <span class="pill pill--score">Propensity <b>90</b></span>
+                  <span class="pill pill--val">Potential <b>~$25K</b></span>
+                  <span class="pill">Warm &middot; high intent</span>
+                </div>
+                <p class="qcard__ctx"><b>Context:</b> Opened your last two emails and clicked the pricing page twice this week. Hot &mdash; the AI has drafted the follow-up; just review and send.</p>
+              </div>
+              <div class="qcard__side">
+                <button class="qbtn" type="button" data-exp aria-expanded="false">Review the Email</button>
+              </div>
+              <div class="qcard__exp">
+                <p class="tt">Drafted follow-up &middot; ready to send</p>
+                <p class="draft"><span class="subj">Subject: Two quick times for that demo?</span>
+
+Hi Alex &mdash; thanks for taking another look this week. Based on what ABC Technology is running today, I&rsquo;d love to show you the reporting and approval workflow side-by-side.
+
+Does Thursday 11:00 or Friday 2:00 work for a focused 30 minutes?</p>
+              </div>
+            </div>
+
+          </div><!-- /.queue -->
+
+          <!-- Zoom meeting mock (revealed on Start) -->
+          <div class="zoom" aria-label="Zoom meeting (illustrative)">
+            <div class="zoom__stage">
+              <div class="zoom__tiles">
+                <div class="tile tile--cust"><div class="tile__av">JA</div><span class="tile__name">Jack Anderson &middot; CFO, ABC Construction</span></div>
+                <div class="tile tile--you"><div class="tile__av">You</div><span class="tile__name">You &middot; Account Executive</span></div>
+              </div>
+              <div class="zoom__panel">
+                <h4>AI Call Plan</h4>
+                <p class="who">Jack Anderson &middot; Score 85 &middot; ~$20K</p>
+                <ul>
+                  <li>Open on the <b style="color:#fff">consolidation pain</b> from last call &mdash; not the product.</li>
+                  <li>Show multi-entity consolidation + intercompany eliminations.</li>
+                  <li>Quantify month-end close hours saved.</li>
+                  <li>Confirm timeline &amp; sign-off (CFO + controller).</li>
+                </ul>
+              </div>
+            </div>
+            <div class="zoom__ctrl">
+              <span class="live">Live &middot; 00:02</span>
+              <span class="muted">AI notetaker on &middot; activity will auto-log to CRM</span>
+              <button class="zoom__back" type="button" data-back>&larr; Back to queue</button>
+            </div>
+          </div>
+        </div>
+        <figcaption><b>Figure 4.</b> Interactive prototype &mdash; the morning work queue. Click <b>&ldquo;Start Zoom Meeting&rdquo;</b> on action 1 to step into the call with the AI plan alongside. <em>All names, scores, and values are fictional.</em></figcaption>
+      </figure>
+
+      <h3>The honest part: the last mile is integration</h3>
+      <p>
+        I want to be precise about what&rsquo;s real and what&rsquo;s still ahead, because the gap is
+        instructive. The <strong>intelligence layer is ready</strong> &mdash; the scoring, the contact ranking,
+        the talk tracks, the sequencing logic all exist and run. Today we&rsquo;ve already automated the flow
+        end-to-end for <em>specific</em> actions, such as calling a high-propensity account: the system picks
+        the account, surfaces the plan, and the seller acts.
+      </p>
+      <p>
+        What blocks the <em>fully</em> autonomous queue &mdash; every action type, one click, start to finish
+        &mdash; isn&rsquo;t the intelligence. It&rsquo;s <strong>tool integration.</strong> Sales teams run
+        different tools for lead engagement versus account engagement, and different tools again for calling
+        versus email. The queue can <em>recommend</em> the next action perfectly; handing that action off to the
+        right execution tool, with state synced back, is the unsolved part. We have the brain; the last mile is
+        wiring it to the hands.
+      </p>
+      <blockquote>
+        The intelligence layer is the hard part, and it&rsquo;s done. The last mile to autonomous selling is
+        unglamorous tool integration &mdash; and that&rsquo;s exactly why it&rsquo;s the next thing to build.
+      </blockquote>
+    </div>
+
+    <!-- 7. Recommendation -->
+    <div class="sec reveal" id="close">
+      <p class="h-sec">07 &middot; Recommendation</p>
+      <h2>Where to start</h2>
+      <p>
+        You don&rsquo;t build this all at once, and you don&rsquo;t start with the flashy part. The sequence
+        that compounds:
+      </p>
+      <div class="steps">
+        <div class="step"><div class="step__n">1</div><p class="step__b"><b>Unify the data first.</b> One profile per account and contact. A modest model on clean, unified data beats a brilliant one on fragmented data &mdash; every time.</p></div>
+        <div class="step"><div class="step__n">2</div><p class="step__b"><b>Turn the score into a framework.</b> Ship the reason, the product, the value, and the talk track alongside the number. Guidance, not just a ranking.</p></div>
+        <div class="step"><div class="step__n">3</div><p class="step__b"><b>Put it where sellers live.</b> Surface everything inside the CRM and engagement tools. If it&rsquo;s a separate dashboard, adoption dies.</p></div>
+        <div class="step"><div class="step__n">4</div><p class="step__b"><b>Sequence the work.</b> Stand up the work queue for the action types you <em>can</em> wire end-to-end today &mdash; prove the motion before you scale it.</p></div>
+        <div class="step"><div class="step__n">5</div><p class="step__b"><b>Close the last mile.</b> Prioritize the tool integrations that let the queue execute, not just recommend. That&rsquo;s the road to autonomous selling.</p></div>
+      </div>
+      <p>
+        The prize is two-sided, and that&rsquo;s what makes it worth doing. Take the non-customer-facing work
+        off the seller&rsquo;s plate and you give back the scarcest resource in the function &mdash; selling
+        time. Aim that reclaimed time at the right account, the right person, and the right pitch, and you
+        don&rsquo;t just save hours &mdash; you raise the odds of winning. Most &ldquo;sales productivity&rdquo;
+        tools pick one of those. The intelligence framework is built to deliver <strong>both, from the same
+        foundation</strong> &mdash; and that combination is how a whole sales force starts to sell like its best
+        rep.
+      </p>
+    </div>
+
+  </div><!-- /.prose -->
+</section>
+
+<!-- ============================================================ AUTHOR == -->
+<section class="spread spread--dark author">
+  <div class="author__wrap reveal">
+    <div class="author__card">
+      <div class="author__mono" aria-hidden="true">&infin;</div>
+      <div>
+        <p class="author__name">Wenlong Song</p>
+        <p class="author__role">Head of Mid-Market Data Science &middot; Intuit</p>
+        <p class="author__bio">
+          I turn go-to-market into a data- and AI-driven growth engine &mdash; from the data foundation up to the
+          agent in the seller&rsquo;s workflow. Across 14+ years in consulting, C2C e-commerce, and B2B SaaS,
+          the throughline is the same: finding the growth opportunity no one has named yet, then building the
+          system that captures it.
+        </p>
+        <div class="author__links">
+          <a class="clink" href="https://wenlongsong.github.io/data-science/introduction.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M13 5l7 7-7 7"/></svg>
+            View portfolio
+          </a>
+          <a class="clink" href="https://www.linkedin.com/in/wenlong-s-29277834/" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 10v7M7 7v.01M11 17v-4a2 2 0 014 0v4"/></svg>
+            Connect on LinkedIn
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- sources -->
+    <div class="sources">
+      <h4>Sources</h4>
+      <ol>
+        <li>Salesforce, <em>State of Sales</em> &mdash; reps spend under 30% of their time selling. <a href="https://www.salesforce.com/news/stories/sales-research-2023/" target="_blank" rel="noopener noreferrer">salesforce.com/news</a></li>
+        <li>Ebsta &times; Pavilion, <em>2025 GTM Benchmarks</em> &mdash; win rate 19% (from 29%); 14% of sellers drive 80% of revenue; multi-threading and early decision-maker involvement lift win rate. <a href="https://benchmarks.ebsta.com/2025-gtm-benchmarks" target="_blank" rel="noopener noreferrer">benchmarks.ebsta.com</a></li>
+        <li>McKinsey &amp; Company, <em>An unconstrained future: How generative AI could reshape B2B sales</em> &mdash; $0.8&ndash;1.2T productivity potential in sales &amp; marketing. <a href="https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/an-unconstrained-future-how-generative-ai-could-reshape-b2b-sales" target="_blank" rel="noopener noreferrer">mckinsey.com</a></li>
+        <li>Gong, <em>Sales Insights</em> &mdash; AI-using sellers and higher revenue per rep; value-prop tracking and win rate. <a href="https://www.gong.io/blog/the-best-sales-insights-of-2025" target="_blank" rel="noopener noreferrer">gong.io</a></li>
+        <li>LinkedIn / Ipsos, <em>Deep Sales</em> study &mdash; daily AI users more likely to exceed targets. <a href="https://www.ipsos.com/en-us/linkedin-sales-solutions-deep-sales-study" target="_blank" rel="noopener noreferrer">ipsos.com</a></li>
+      </ol>
+      <p class="disclaimer">
+        The Sales Intelligence Framework, its three layers, and the Account Scoring Framework architecture are
+        described conceptually based on the author&rsquo;s work. All in-product figures, scores, dollar values,
+        names, and the work-queue prototype are <b>illustrative and directional</b> &mdash; presented to explain
+        the method, not as actual company results, and containing no confidential data. Product and platform
+        names are used only to make the architecture concrete.
+      </p>
+    </div>
+
+    <div class="footer">
+      <span>&copy; 2026 Wenlong Song</span>
+      <span id="lastmod"></span>
+    </div>
+  </div>
+</section>
+</article>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* nav condense on scroll */
+  var nav = document.getElementById("nav");
+  function onScroll(){ nav.classList.toggle("is-scrolled", window.scrollY > 24); }
+  onScroll(); window.addEventListener("scroll", onScroll, {passive:true});
+
+  /* reading-progress bar */
+  var bar = document.getElementById("progress");
+  function onProgress(){
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    var pct = max > 0 ? (h.scrollTop || window.scrollY) / max * 100 : 0;
+    bar.style.width = pct + "%";
+  }
+  onProgress(); window.addEventListener("scroll", onProgress, {passive:true});
+  window.addEventListener("resize", onProgress, {passive:true});
+
+  /* scroll reveal */
+  var reveals = [].slice.call(document.querySelectorAll(".reveal"));
+  if (reduce || !("IntersectionObserver" in window)){
+    reveals.forEach(function(el){ el.classList.add("is-in"); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add("is-in"); io.unobserve(e.target); }
+      });
+    }, {threshold:0.12, rootMargin:"0px 0px -6% 0px"});
+    reveals.forEach(function(el){ io.observe(el); });
+  }
+
+  /* footer last-modified */
+  var lm = document.getElementById("lastmod");
+  if (lm){
+    var d = new Date(document.lastModified);
+    if (isNaN(d.getTime())) d = new Date();
+    lm.textContent = "Last updated " + d.toLocaleDateString("en-US", {year:"numeric", month:"long", day:"numeric"});
+  }
+
+  /* All-Articles dropdown */
+  var ddWrap = document.querySelector(".nav__dd-wrap");
+  if (ddWrap){
+    var ddToggle = ddWrap.querySelector(".nav__dd-toggle");
+    function setDD(open){
+      ddWrap.classList.toggle("is-open", open);
+      ddToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    ddToggle.addEventListener("click", function(e){
+      e.stopPropagation();
+      setDD(!ddWrap.classList.contains("is-open"));
+    });
+    document.addEventListener("click", function(e){ if (!ddWrap.contains(e.target)) setDD(false); });
+    document.addEventListener("keydown", function(e){ if (e.key === "Escape") setDD(false); });
+  }
+
+  /* right section-nav rail: scrollspy + show/hide */
+  var rail = document.getElementById("rail");
+  if (rail){
+    var spies = [].slice.call(rail.querySelectorAll("a"));
+    var heroEl = document.querySelector(".hero");
+    var authorEl = document.querySelector(".author");
+    function railVis(){
+      var y = window.scrollY || document.documentElement.scrollTop;
+      var heroH = heroEl ? heroEl.offsetHeight : 600;
+      var top = y > heroH * 0.6;
+      var bottom = authorEl ? (y + window.innerHeight * 0.55 < authorEl.offsetTop) : true;
+      rail.classList.toggle("is-on", top && bottom);
+    }
+    railVis();
+    window.addEventListener("scroll", railVis, {passive:true});
+    window.addEventListener("resize", railVis, {passive:true});
+    if ("IntersectionObserver" in window){
+      var setActive = function(id){
+        spies.forEach(function(a){ a.classList.toggle("is-active", a.getAttribute("href") === "#" + id); });
+      };
+      var sio = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if (e.isIntersecting && e.target.id) setActive(e.target.id); });
+      }, {rootMargin:"-45% 0px -50% 0px", threshold:0});
+      spies.forEach(function(a){
+        var sec = document.querySelector(a.getAttribute("href"));
+        if (sec) sio.observe(sec);
+      });
+    }
+  }
+
+  /* ---- interactive work-queue prototype ---- */
+  var proto = document.getElementById("proto");
+  if (proto){
+    /* expand / collapse a card's plan */
+    [].slice.call(proto.querySelectorAll("[data-exp]")).forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var card = btn.closest(".qcard");
+        if (!card) return;
+        var open = card.classList.toggle("is-open");
+        [].slice.call(card.querySelectorAll("[data-exp]")).forEach(function(b){
+          b.setAttribute("aria-expanded", open ? "true" : "false");
+        });
+      });
+    });
+    /* start the meeting -> reveal Zoom mock */
+    var startBtn = proto.querySelector("[data-start]");
+    var backBtn  = proto.querySelector("[data-back]");
+    function center(){
+      try { proto.scrollIntoView({behavior: reduce ? "auto" : "smooth", block:"center"}); } catch(e){}
+    }
+    if (startBtn) startBtn.addEventListener("click", function(){ proto.classList.add("is-meeting"); center(); });
+    if (backBtn)  backBtn.addEventListener("click",  function(){ proto.classList.remove("is-meeting"); center(); });
+  }
+})();
+</script>
+</body>
+</html>
