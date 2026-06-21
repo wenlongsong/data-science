@@ -123,6 +123,36 @@ a{color:inherit;text-decoration:none;}
 .nav__links a:hover{color:var(--white);}
 .nav__links a:hover::after{width:100%;}
 
+/* Articles dropdown */
+.nav__dd-wrap{position:relative;}
+.nav__dd-toggle{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mist);background:none;border:0;cursor:pointer;padding:.3rem 0;
+  display:inline-flex;align-items:center;gap:.5rem;transition:color .25s;
+}
+.nav__dd-toggle:hover,.nav__dd-wrap.is-open .nav__dd-toggle{color:var(--white);}
+.nav__dd-toggle .caret{width:.46rem;height:.46rem;border-right:1.6px solid currentColor;
+  border-bottom:1.6px solid currentColor;transform:rotate(45deg);margin-top:-.18rem;transition:transform .3s var(--ease);}
+.nav__dd-wrap.is-open .nav__dd-toggle .caret{transform:rotate(-135deg);margin-top:.1rem;}
+.nav__dd{
+  position:absolute;top:calc(100% + .7rem);left:0;min-width:250px;max-width:min(330px,82vw);
+  list-style:none;margin:0;padding:.5rem;
+  background:rgba(8,30,49,.97);backdrop-filter:blur(14px) saturate(140%);
+  border:1px solid var(--line-dark);border-radius:12px;box-shadow:0 26px 60px -24px rgba(0,0,0,.7);
+  opacity:0;visibility:hidden;transform:translateY(-8px);
+  transition:opacity .25s var(--ease),transform .25s var(--ease),visibility .25s;
+}
+.nav__dd-wrap.is-open .nav__dd{opacity:1;visibility:visible;transform:none;}
+.nav__dd li{margin:0;}
+.nav__dd a{
+  display:flex;align-items:baseline;gap:.55rem;padding:.6rem .7rem;border-radius:8px;
+  font-family:var(--sans);font-size:.88rem;font-weight:500;letter-spacing:0;text-transform:none;
+  color:var(--mist);line-height:1.35;transition:background .2s,color .2s;
+}
+.nav__dd a::after{display:none;}
+.nav__dd a:hover{background:rgba(41,181,232,.1);color:var(--white);}
+.nav__dd a .dd-n{font-family:var(--mono);font-size:.62rem;font-weight:500;color:var(--mist-dim);flex:none;position:relative;top:-.05em;}
+
 /* ============================================================ HERO ====== */
 .hero{
   min-height:100svh;display:flex;align-items:center;
@@ -441,6 +471,15 @@ a{color:inherit;text-decoration:none;}
     <ul class="nav__links">
       <li><a href="#about">Intro</a></li>
       <li><a href="#work">Highlights</a></li>
+      <li class="nav__dd-wrap">
+        <button class="nav__dd-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+          Articles <span class="caret" aria-hidden="true"></span>
+        </button>
+        <ul class="nav__dd" role="menu" aria-label="Articles">
+          <li><a href="articles/need-centric-targeting-framework.html" role="menuitem"><span class="dd-n">01</span> The Need-Centric Targeting Framework</a></li>
+          <li><a href="articles/ai-sales-intelligence-framework.html" role="menuitem"><span class="dd-n">02</span> An AI-Powered Sales Intelligence Framework</a></li>
+        </ul>
+      </li>
       <li><a href="#career">Career</a></li>
       <li><a href="#edu">Education</a></li>
       <li><a href="#contact">Contact</a></li>
@@ -1111,6 +1150,22 @@ a{color:inherit;text-decoration:none;}
     var d = new Date(document.lastModified);
     if (isNaN(d.getTime())) d = new Date();
     lm.textContent = "Last updated " + d.toLocaleDateString("en-US", {year:"numeric", month:"long", day:"numeric"});
+  }
+
+  /* ---- Articles dropdown (click to open; outside-click / Esc to close) ---- */
+  var ddWrap = document.querySelector(".nav__dd-wrap");
+  if (ddWrap){
+    var ddToggle = ddWrap.querySelector(".nav__dd-toggle");
+    var setDD = function(open){
+      ddWrap.classList.toggle("is-open", open);
+      ddToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+    ddToggle.addEventListener("click", function(e){
+      e.stopPropagation();
+      setDD(!ddWrap.classList.contains("is-open"));
+    });
+    document.addEventListener("click", function(e){ if (!ddWrap.contains(e.target)) setDD(false); });
+    document.addEventListener("keydown", function(e){ if (e.key === "Escape") setDD(false); });
   }
 
   // kick off once after fonts/paint (guard against double-fire)
