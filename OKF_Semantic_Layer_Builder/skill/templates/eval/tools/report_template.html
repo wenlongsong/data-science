@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Semantic-Layer Eval — {{SKILL}}</title>
+<style>
+  :root {
+    --bg:#F0EEE6; --surface:#FAF9F5; --surface-2:#FFFFFF;
+    --ink:#141413; --muted:#6E6B61; --line:#E0DCD1; --line-soft:#EBE8DF;
+    --clay:#CC785C; --clay-deep:#B5613F;
+    --correct:#4F6443; --correct-bg:#E9ECE2;
+    --partial:#9A6B16; --partial-bg:#F2EAD7;
+    --incorrect:#A8432E; --incorrect-bg:#F2E1DB;
+    --serif:"Tiempos Headline","Tiempos Text",Georgia,"Times New Roman",serif;
+    --sans:"Styrene A","Styrene B",ui-sans-serif,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Code",Consolas,"Liberation Mono",monospace;
+  }
+  * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  .wrap { max-width:980px; margin:0 auto; padding:64px 28px 96px; }
+
+  /* ---- header ---- */
+  .eyebrow { font-size:12px; letter-spacing:.16em; text-transform:uppercase;
+             color:var(--clay-deep); font-weight:600; margin:0 0 14px; }
+  .masthead { display:flex; justify-content:space-between; align-items:flex-end;
+              gap:24px; flex-wrap:wrap; border-bottom:1px solid var(--line);
+              padding-bottom:28px; }
+  h1 { font-family:var(--serif); font-weight:500; font-size:clamp(30px,5vw,46px);
+       line-height:1.05; letter-spacing:-.01em; margin:0; }
+  h1 .skill { font-family:var(--mono); font-size:.5em; color:var(--muted);
+              display:block; letter-spacing:0; margin-top:12px; font-weight:400; }
+  .runmeta { font-family:var(--mono); font-size:12px; color:var(--muted);
+             text-align:right; line-height:1.9; white-space:nowrap; }
+  .runmeta b { color:var(--ink); font-weight:500; }
+
+  /* ---- section scaffold ---- */
+  .section { margin-top:64px; }
+  .section__head { font-size:12px; letter-spacing:.16em; text-transform:uppercase;
+                   color:var(--muted); font-weight:600; margin:0 0 22px;
+                   display:flex; align-items:center; gap:14px; }
+  .section__head::after { content:""; flex:1; height:1px; background:var(--line); }
+
+  /* ---- metric cards ---- */
+  .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .metric { background:var(--surface); border:1px solid var(--line);
+            border-radius:10px; padding:22px 20px 18px; }
+  .metric--accent { background:var(--surface-2); border-color:#E4C9BC;
+                    box-shadow:inset 3px 0 0 var(--clay); }
+  .metric__label { font-size:12px; color:var(--muted); font-weight:500;
+                   letter-spacing:.01em; }
+  .metric__num { font-family:var(--serif); font-weight:500;
+                 font-size:clamp(34px,4.4vw,44px); line-height:1; margin:14px 0 8px;
+                 letter-spacing:-.01em; }
+  .metric--accent .metric__num { color:var(--clay-deep); }
+  .metric__sub { font-family:var(--mono); font-size:11.5px; color:var(--muted); }
+
+  /* ---- signature: verdict bar ---- */
+  .verdict { margin-top:18px; background:var(--surface); border:1px solid var(--line);
+             border-radius:10px; padding:18px 20px; }
+  .verdict__bar { display:flex; height:12px; border-radius:999px; overflow:hidden;
+                  background:var(--line-soft); }
+  .seg { height:100%; width:0; transition:width .9s cubic-bezier(.22,.61,.36,1); }
+  .seg--correct { background:var(--correct); }
+  .seg--partial { background:var(--partial); }
+  .seg--incorrect { background:var(--incorrect); }
+  .verdict__legend { display:flex; gap:24px; flex-wrap:wrap; margin-top:14px;
+                     font-size:12.5px; color:var(--muted); }
+  .verdict__legend b { color:var(--ink); font-weight:600; }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:7px;
+         vertical-align:middle; }
+  .dot--correct { background:var(--correct); }
+  .dot--partial { background:var(--partial); }
+  .dot--incorrect { background:var(--incorrect); }
+
+  /* ---- case blocks ---- */
+  .case { background:var(--surface); border:1px solid var(--line); border-radius:10px;
+          padding:24px 24px 22px; margin-bottom:16px; border-left:3px solid var(--line); }
+  .case--correct { border-left-color:var(--correct); }
+  .case--partial { border-left-color:var(--partial); }
+  .case--incorrect { border-left-color:var(--incorrect); }
+  .case__head { display:flex; justify-content:space-between; align-items:center;
+                gap:16px; margin-bottom:12px; }
+  .case__id { font-family:var(--mono); font-size:12px; color:var(--muted); }
+  .case__q { font-family:var(--serif); font-size:20px; line-height:1.35; margin:0 0 20px;
+             font-weight:500; letter-spacing:-.005em; }
+  .badge { font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+           padding:4px 11px; border-radius:999px; white-space:nowrap; }
+  .badge--correct { background:var(--correct-bg); color:var(--correct); }
+  .badge--partial { background:var(--partial-bg); color:var(--partial); }
+  .badge--incorrect { background:var(--incorrect-bg); color:var(--incorrect); }
+
+  .cmp { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line);
+         border:1px solid var(--line); border-radius:8px; overflow:hidden; margin-bottom:14px; }
+  .cmp__col { background:var(--surface-2); padding:12px 14px; min-width:0; }
+  .cmp__label { font-family:var(--mono); font-size:11px; letter-spacing:.04em;
+                text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
+  .cmp__val { font-family:var(--serif); font-size:21px; font-weight:500; word-break:break-word; }
+  pre.sql { margin:0; font-family:var(--mono); font-size:12.5px; line-height:1.55;
+            color:var(--ink); white-space:pre-wrap; word-break:break-word;
+            max-height:260px; overflow:auto; }
+
+  .miss { display:flex; gap:12px; padding:14px 16px; border-radius:8px;
+          background:var(--incorrect-bg); margin-top:4px; }
+  .case--partial .miss { background:var(--partial-bg); }
+  .miss__mark { font-family:var(--serif); font-size:18px; line-height:1.2; color:var(--clay-deep); }
+  .miss__body { min-width:0; }
+  .miss__label { font-family:var(--mono); font-size:11px; letter-spacing:.04em;
+                 text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+  .miss p { margin:0; font-size:14px; }
+
+  /* ---- recommended actions ---- */
+  .actions { list-style:none; counter-reset:act; padding:0; margin:0; }
+  .actions li { counter-increment:act; position:relative; padding:16px 18px 16px 58px;
+                background:var(--surface); border:1px solid var(--line);
+                border-radius:10px; margin-bottom:10px; font-size:15px; }
+  .actions li::before { content:counter(act,decimal-leading-zero); position:absolute;
+                        left:18px; top:15px; font-family:var(--mono); font-size:13px;
+                        font-weight:600; color:var(--clay-deep); }
+  .muted { color:var(--muted); }
+
+  footer { margin-top:64px; padding-top:24px; border-top:1px solid var(--line);
+           font-family:var(--mono); font-size:11.5px; color:var(--muted);
+           display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+
+  @media (max-width:720px) {
+    .metrics { grid-template-columns:repeat(2,1fr); }
+    .cmp { grid-template-columns:1fr; }
+    .runmeta { text-align:left; }
+  }
+  @media (prefers-reduced-motion:reduce) { .seg { transition:none; } }
+  :focus-visible { outline:2px solid var(--clay); outline-offset:2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">OKF Semantic-Layer Accuracy Eval</p>
+    <div class="masthead">
+      <h1>Evaluation report<span class="skill">{{SKILL}}</span></h1>
+      <div class="runmeta">
+        run <b>{{RUN_TS}}</b><br>
+        tokens via <b>{{TOKEN_METHOD}}</b>
+      </div>
+    </div>
+  </header>
+
+  <section class="section">
+    <h2 class="section__head">Summary</h2>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric__label">Test questions</div>
+        <div class="metric__num">{{TOTAL_QUESTIONS}}</div>
+        <div class="metric__sub">total evaluated</div>
+      </div>
+      <div class="metric metric--accent">
+        <div class="metric__label">Overall accuracy</div>
+        <div class="metric__num">{{OVERALL_PCT}}</div>
+        <div class="metric__sub">{{OVERALL_FRACTION}}</div>
+      </div>
+      <div class="metric">
+        <div class="metric__label">Partially correct</div>
+        <div class="metric__num">{{PARTIAL_PCT}}</div>
+        <div class="metric__sub">{{PARTIAL_FRACTION}}</div>
+      </div>
+      <div class="metric">
+        <div class="metric__label">Avg tokens / question</div>
+        <div class="metric__num">{{AVG_TOKENS}}</div>
+        <div class="metric__sub">across all cases</div>
+      </div>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict__bar" role="img"
+           aria-label="Correct {{CORRECT_N}}, partial {{PARTIAL_N}}, incorrect {{INCORRECT_N}}">
+        <span class="seg seg--correct" style="width:{{CORRECT_PCT_NUM}}%"></span>
+        <span class="seg seg--partial" style="width:{{PARTIAL_PCT_NUM}}%"></span>
+        <span class="seg seg--incorrect" style="width:{{INCORRECT_PCT_NUM}}%"></span>
+      </div>
+      <div class="verdict__legend">
+        <span><i class="dot dot--correct"></i><b>{{CORRECT_N}}</b> correct &middot; within &plusmn;2%</span>
+        <span><i class="dot dot--partial"></i><b>{{PARTIAL_N}}</b> partial &middot; &plusmn;2&ndash;5%</span>
+        <span><i class="dot dot--incorrect"></i><b>{{INCORRECT_N}}</b> incorrect &middot; beyond &plusmn;5%</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section__head">Case-by-case analysis</h2>
+    {{CASE_BLOCKS}}
+  </section>
+
+  <section class="section">
+    <h2 class="section__head">Recommended actions</h2>
+    <ol class="actions">{{RECOMMENDATIONS}}</ol>
+  </section>
+
+  <footer>
+    <span>Generated by generate_report.py · OKF semantic-layer eval</span>
+    <span>{{TOTAL_QUESTIONS}} questions · {{RUN_TS}}</span>
+  </footer>
+</div>
+
+<script>
+  // Single orchestrated moment: grow the verdict-bar segments from zero on load.
+  // Guarded for reduced-motion and for environments without JS (bars just show full width).
+  (function () {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var segs = document.querySelectorAll('.seg');
+    segs.forEach(function (s) { var w = s.style.width; s.style.width = '0%'; s.dataset.w = w; });
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        segs.forEach(function (s) { s.style.width = s.dataset.w; });
+      });
+    });
+  })();
+</script>
+</body>
+</html>
